@@ -12,14 +12,14 @@ public:
 	Effect(ID3D11Device* pDevice, const std::wstring& assetPath);
 	Effect(const Effect& other) = delete;
 	Effect(Effect&& rffect) = delete;
+	~Effect();
 
 	ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetPath);
 
 	ID3DX11Effect* GetEffect() const;
-	ID3D11Device* GetDevice() const;
-private:
-	ID3D11Device* m_pDevice;
-	const std::wstring assetFile;
+	ID3DX11EffectTechnique* GetTechnique() const;
 
+private:
 	ID3DX11Effect* m_pEffect;
+	ID3DX11EffectTechnique* m_pTechnique;
 };

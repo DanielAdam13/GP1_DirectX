@@ -3,11 +3,32 @@
 #include <sstream> // string stream for wstringstream
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
-	:m_pDevice{ pDevice },
-	assetFile{ assetPath },
-	m_pEffect{}
+	: m_pEffect{},
+	m_pTechnique{}
 {
-	m_pEffect = LoadEffect(m_pDevice, assetFile);
+	m_pEffect = LoadEffect(pDevice, assetPath);
+	if (!m_pEffect)
+		return;
+
+	if (m_pEffect)
+	{
+		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+
+		if (!m_pTechnique->IsValid())
+		{
+			std::wcout << L"Technique not valid!\n";
+			m_pTechnique = nullptr;
+		}
+	}
+}
+
+Effect::~Effect()
+{
+	if (m_pEffect)
+		m_pEffect->Release();
+	m_pEffect = nullptr;
+
+	m_pTechnique = nullptr;
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetPath)
@@ -68,7 +89,7 @@ ID3DX11Effect* Effect::GetEffect() const
 	return m_pEffect;
 }
 
-ID3D11Device* Effect::GetDevice() const
+ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
-	return m_pDevice;
+	return (m_pTechnique && m_pTechnique->IsValid()) ? m_pTechnique : nullptr;
 }
