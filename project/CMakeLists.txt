@@ -8,11 +8,10 @@ set(SOURCES
 	"src/Vector2.cpp"
     "src/Vector3.cpp"
     "src/Vector4.cpp"
-"src/Mesh.cpp"
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} "src/Effect.h" "src/Effect.cpp" "src/Mesh.h" "src/Mesh.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES} "src/Effect.h" "src/Effect.cpp" "src/Mesh.h" "src/Mesh.cpp" "src/ColorRGB.cpp")
 
 # DirectX11
 option(DIRECTX_11_ENABLED "Enable DirectX 11 Support" ON)

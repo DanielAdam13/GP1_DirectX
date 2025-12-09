@@ -9,7 +9,8 @@
 class Effect final
 {
 public:
-	Effect(ID3D11Device* pDevice, const std::wstring& assetPath);
+	explicit Effect(ID3D11Device* pDevice, const std::wstring& assetPath);
+	Effect(Effect& other) = delete;
 	Effect(const Effect& other) = delete;
 	Effect(Effect&& rffect) = delete;
 	~Effect();
