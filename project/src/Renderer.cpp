@@ -8,6 +8,9 @@
 //Project includes
 #include "Renderer.h"
 
+#define SAFE_RELEASE(p) \
+if (p) {p->Release(); p = nullptr; }
+
 using namespace dae;
 
 Renderer::Renderer(SDL_Window* pWindow) :
@@ -31,7 +34,32 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 Renderer::~Renderer()
 {
-	
+	SDL_DestroyWindow(m_pWindow);
+	m_pWindow = nullptr;
+
+	// 1. Unbind Render Target view and Depth Stencil view from Device Context
+	if (m_pDeviceContext)
+	{
+		m_pDeviceContext->ClearState();
+		m_pDeviceContext->Flush();
+	}
+
+	// 2. Release Views
+	SAFE_RELEASE(m_pDepthStencilView);
+	SAFE_RELEASE(m_pRenderTargetView);
+
+	// 3. Release Buffers
+	SAFE_RELEASE(m_pDepthStencilBuffer);
+	SAFE_RELEASE(m_pRenderTargetBuffer);
+
+	// 4. Release Swap Chain
+	SAFE_RELEASE(m_pSwapChain);
+
+	// 5. Handle Device Context BEFORE Device
+	SAFE_RELEASE(m_pDeviceContext);
+
+	// 6. Release Device
+	SAFE_RELEASE(m_pDevice);
 }
 
 void Renderer::Update(const Timer* pTimer)
