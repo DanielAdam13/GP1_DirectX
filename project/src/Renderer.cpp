@@ -30,6 +30,18 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	{
 		std::cout << "DirectX initialization failed!\n";
 	}
+
+	m_Meshes.reserve(1);
+	m_Meshes.emplace_back(std::make_unique<Mesh>(
+		std::vector<VertexIn> {
+		{ {0.f, 0.5f, 0.5f}, { 1.f, 0.f, 0.f } },
+		{ {0.5f, -0.5f, 0.5f}, {0.f, 0.f, 1.f} },
+		{ {-0.5f, -0.5f, 0.5f}, {0.f, 1.f, 0.f} } 
+	},
+		std::vector<uint32_t> {0, 1, 2}, 
+		PrimitiveTopology::TriangleList,
+		m_pDevice
+	));
 }
 
 Renderer::~Renderer()
@@ -71,6 +83,10 @@ void Renderer::Update(const Timer* pTimer)
 
 	// Render Frame
 	// ...
+	for (const auto& pMesh : m_Meshes)
+	{
+		pMesh->Render(m_pDeviceContext);
+	}
 
 
 	// Present BackBuffer (SWAP)
