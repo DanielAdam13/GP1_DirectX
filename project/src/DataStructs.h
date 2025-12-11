@@ -17,11 +17,13 @@ namespace dae
 	{
 		Vector3 position{};
 		ColorRGB color{};
+		Vector2 UVCoordinate{};
 	};
 
 	struct VertexOut
 	{
 		Vector4 position{};
 		ColorRGB color{};
+		Vector2 UVCoordinate{};
 	};
 }

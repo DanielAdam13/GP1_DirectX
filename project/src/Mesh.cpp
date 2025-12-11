@@ -71,18 +71,24 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 void Mesh::CreateLayouts(ID3D11Device* pDevice)
 {
 	// Vertex Layout
-	static constexpr uint32_t numElements{ 2 };
+	static constexpr uint32_t numElements{ 3 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
 	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[0].AlignedByteOffset = 0;
+	vertexDesc[0].AlignedByteOffset = 0; // Starts from byte 0
 	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	vertexDesc[1].SemanticName = "COLOR";
 	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[1].AlignedByteOffset = 12;
+	vertexDesc[1].AlignedByteOffset = 12; // Starts from +3 floats = 12 bytes
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[2].SemanticName = "TEXCOORD";
+	vertexDesc[2].SemanticIndex = 0;
+	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[2].AlignedByteOffset = 24; // Starts from +3 +3 floats = 24 bytes
+	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	// Input Layout
 	D3DX11_PASS_DESC passDesc{};
