@@ -46,3 +46,8 @@ technique11 DefaultTechnique
         SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 }
+
+// -------------------------
+//   WorldViewProjection Matrix
+// -------------------------
+float4x4 gWorldViewProj : WorldViewProjection;

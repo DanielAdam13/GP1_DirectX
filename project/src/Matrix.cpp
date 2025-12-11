@@ -188,14 +188,23 @@ namespace dae {
 
 	Matrix Matrix::CreateLookAtLH(const Vector3& origin, const Vector3& forward, const Vector3& up)
 	{
-		//TODO
-		return {};
+		Vector3 rightDirection{ Vector3::Cross(Vector3::UnitY, forward) };
+		rightDirection.Normalize();
+
+		Vector3 upDirection{ Vector3::Cross(forward, rightDirection) };
+		upDirection.Normalize();
+
+		const Matrix invViewMatrix(rightDirection, upDirection, forward, origin); // Camera to World
+
+		return Matrix::Inverse(invViewMatrix); // World to Camera
 	}
 
 	Matrix Matrix::CreatePerspectiveFovLH(float fov, float aspect, float zn, float zf)
 	{
-		//TODO
-		return {};
+		return Matrix{ Vector4{1 / (aspect * fov), 0.f, 0.f, 0.f},
+		Vector4{ 0.f, 1 / fov, 0.f, 0.f},
+		Vector4{ 0.f, 0.f, zf / (zf - zn), 1.f},
+		Vector4{ 0.f, 0.f, -(zf * zn / (zf - zn)) ,0.f} };
 	}
 
 	Vector3 Matrix::GetAxisX() const

@@ -4,21 +4,24 @@
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 	: m_pEffect{},
-	m_pTechnique{}
+	m_pTechnique{},
+	m_pWorldViewProjMatrixVariable{}
 {
 	m_pEffect = LoadEffect(pDevice, assetPath);
 	if (!m_pEffect)
 		return;
 
-	if (m_pEffect)
+	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+	if (!m_pTechnique->IsValid())
 	{
-		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+		std::wcout << L"Technique not valid!\n";
+		m_pTechnique = nullptr;
+	}
 
-		if (!m_pTechnique->IsValid())
-		{
-			std::wcout << L"Technique not valid!\n";
-			m_pTechnique = nullptr;
-		}
+	m_pWorldViewProjMatrixVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+	if (!m_pWorldViewProjMatrixVariable->IsValid())
+	{
+		std::wcout << L"m_pWorldViewProjMatrixVariable is not valid!\n";
 	}
 }
 
