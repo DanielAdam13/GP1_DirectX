@@ -28,10 +28,16 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 Effect::~Effect()
 {
 	if (m_pEffect)
+	{
 		m_pEffect->Release();
-	m_pEffect = nullptr;
+		m_pEffect = nullptr;
+	}
 
-	m_pTechnique = nullptr;
+	if (m_pTechnique)
+		m_pTechnique = nullptr; // Technique is owned by Effect, thus no need to Release
+
+	if (m_pWorldViewProjMatrixVariable)
+		m_pWorldViewProjMatrixVariable = nullptr; // Matrix is owned by Effect --||--
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetPath)

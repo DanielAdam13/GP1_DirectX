@@ -31,6 +31,8 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::cout << "DirectX initialization failed!\n";
 	}
 
+	m_Camera.Initialize(45.f, { 0.f, 0.f, 0.f });
+
 	m_Meshes.reserve(1);
 	m_Meshes.emplace_back(std::make_unique<Mesh>(
 		std::vector<VertexIn> {

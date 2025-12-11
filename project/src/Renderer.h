@@ -14,6 +14,7 @@
 
 #include <vector>
 #include "Mesh.h"
+#include "Camera.h"
 
 namespace dae
 {
@@ -39,6 +40,7 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
+		Camera m_Camera{};
 		std::vector<std::unique_ptr<Mesh>> m_Meshes{};
 
 		//DIRECTX
