@@ -3,9 +3,9 @@
 
 #pragma once
 
-constexpr float CameraRotationSpeed = dae::PI / 5.f;
-constexpr float CameraMoveSpeedMouse = 5.f;
-constexpr float CameraMoveSpeedKeys = 30.f;
+constexpr float CameraRotationSpeed = dae::PI * 2.f;
+constexpr float CameraMoveSpeedMouse = 50.f;
+constexpr float CameraMoveSpeedKeys = 5.f;
 
 namespace dae
 {
@@ -72,7 +72,7 @@ namespace dae
 		//DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
 	}
 
-	void Camera::Update(Timer* pTimer, float aspectRatio)
+	void Camera::Update(const Timer* pTimer, float aspectRatio)
 	{
 		const float deltaTime{ pTimer->GetElapsed() };
 

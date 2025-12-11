@@ -102,3 +102,8 @@ ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
 	return (m_pTechnique && m_pTechnique->IsValid()) ? m_pTechnique : nullptr;
 }
+
+ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMatrix() const
+{
+	return m_pWorldViewProjMatrixVariable;
+}

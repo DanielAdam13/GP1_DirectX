@@ -7,6 +7,7 @@
 
 #include "DataStructs.h"
 #include <vector>
+#include "Matrix.h"
 
 class Effect;
 
@@ -25,15 +26,13 @@ public:
 		ID3D11Device* pDevice);
 	~Mesh();
 
-	void Render(ID3D11DeviceContext* pDeviceContext) const;
+	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix);
+
+	void Translate(const Vector3& offset);
+	void RotateY(float yaw);
+	void Scale(const Vector3& scale);
 
 private:
-	// Mesh Members
-	std::vector<VertexIn> m_Vertices;
-	std::vector<uint32_t> m_Indices;
-
-	PrimitiveTopology m_CurrentTopology;
-
 	// Direct X Resources
 	Effect* m_pEffect;
 
@@ -42,5 +41,22 @@ private:
 	ID3D11Buffer* m_pIndexBuffer{};
 	uint32_t m_NumIndices{};
 
+	// Mesh Members
+	std::vector<VertexIn> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+
+	PrimitiveTopology m_CurrentTopology;
+
+	Vector3 m_Position;
+	float m_RotY;
+	Vector3 m_Scale;
+
+	Matrix m_WorldMatrix;
+	Matrix m_TranslationMatrix;
+	Matrix m_RotationMatrix;
+	Matrix m_ScaleMatrix;
+
 	void CreateLayouts(ID3D11Device* pDevice);
+
+	
 };

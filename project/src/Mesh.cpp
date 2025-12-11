@@ -13,8 +13,16 @@ Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& 
 	: m_Vertices{ _vertices },
 	m_Indices{ _indices },
 	m_CurrentTopology{ _primitive },
-	m_pEffect{}
+	m_pEffect{},
+	m_Position{ 0.f, 0.f, 0.f },
+	m_RotY{ 0.f },
+	m_Scale{ 1.f, 1.f, 1.f },
+	m_WorldMatrix{},
+	m_TranslationMatrix{ Matrix::CreateTranslation(m_Position) },
+	m_RotationMatrix{ Matrix::CreateRotationY(m_RotY) },
+	m_ScaleMatrix{ Matrix::CreateScale(m_Scale) }
 {
+	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	m_pEffect = new Effect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
 }
@@ -29,8 +37,12 @@ Mesh::~Mesh()
 	m_pEffect = nullptr;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix)
 {
+	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
+	Matrix worldViewProjectionMatrix{ m_WorldMatrix * viewProjMatrix };
+	m_pEffect->GetWorldViewProjMatrix()->SetMatrix(reinterpret_cast<float*>(&worldViewProjectionMatrix));
+
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
@@ -48,6 +60,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 	// DRAW
 	D3DX11_TECHNIQUE_DESC techDesc{};
 	m_pEffect->GetTechnique()->GetDesc(&techDesc);
+
 	for (UINT p{}; p < techDesc.Passes; ++p)
 	{
 		m_pEffect->GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
@@ -113,4 +126,21 @@ void Mesh::CreateLayouts(ID3D11Device* pDevice)
 
 	if (FAILED(result))
 		return;
+}
+
+void Mesh::Translate(const Vector3& offset)
+{
+	m_Position += offset;
+	m_TranslationMatrix = Matrix::CreateTranslation(m_Position);
+}
+
+void Mesh::RotateY(float yaw)
+{
+	m_RotY += yaw;
+	m_RotationMatrix = Matrix::CreateRotationY(m_RotY);
+}
+
+void Mesh::Scale(const Vector3& scale)
+{
+	m_ScaleMatrix = Matrix::CreateScale(scale);
 }

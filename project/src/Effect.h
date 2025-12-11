@@ -20,6 +20,8 @@ public:
 	ID3DX11Effect* GetEffect() const;
 	ID3DX11EffectTechnique* GetTechnique() const;
 
+	ID3DX11EffectMatrixVariable* GetWorldViewProjMatrix() const;
+
 private:
 	ID3DX11Effect* m_pEffect;
 	ID3DX11EffectTechnique* m_pTechnique;

@@ -31,7 +31,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::cout << "DirectX initialization failed!\n";
 	}
 
-	m_Camera.Initialize(45.f, { 0.f, 0.f, 0.f });
+	m_Camera.Initialize(45.f, { 0.f, 0.f, -10.f }, 0.1f, 100.f);
 
 	m_Meshes.reserve(1);
 	m_Meshes.emplace_back(std::make_unique<Mesh>(
@@ -83,11 +83,16 @@ void Renderer::Update(const Timer* pTimer)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
+	const float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+
+	m_Camera.Update(pTimer, aspectRatio);
+	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
+
 	// Render Frame
 	// ...
-	for (const auto& pMesh : m_Meshes)
+	for (auto& pMesh : m_Meshes)
 	{
-		pMesh->Render(m_pDeviceContext);
+		pMesh->Render(m_pDeviceContext, viewProjMatrix);
 	}
 
 

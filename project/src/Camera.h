@@ -37,6 +37,6 @@ namespace dae
 
 		void CalculateProjectionMatrix(float aspectRatio);
 
-		void Update(Timer* pTimer, float aspectRatio);
+		void Update(const Timer* pTimer, float aspectRatio);
 	};
 }
