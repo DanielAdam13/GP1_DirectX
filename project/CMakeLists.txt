@@ -11,7 +11,7 @@ set(SOURCES
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} "src/Effect.h" "src/Effect.cpp" "src/Mesh.h" "src/Mesh.cpp" "src/ColorRGB.cpp" "src/Camera.h" "src/Camera.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES} "src/Effect.h" "src/Effect.cpp" "src/Mesh.h" "src/Mesh.cpp" "src/ColorRGB.cpp" "src/Camera.h" "src/Camera.cpp" "src/Texture.cpp")
 
 # DirectX11
 option(DIRECTX_11_ENABLED "Enable DirectX 11 Support" ON)
