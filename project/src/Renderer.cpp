@@ -42,6 +42,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	},
 		std::vector<uint32_t> {0, 1, 2}, 
 		PrimitiveTopology::TriangleList,
+		"resources/vehicle_diffuse.png",
 		m_pDevice
 	));
 }

@@ -21,6 +21,11 @@ struct VS_OUTPUT
 float4x4 gWorldViewProj : WorldViewProjection;
 
 // -------------------------
+//   Texture Variable
+// -------------------------
+Texture2D gDiffuseMap : DiffuseMap;
+
+// -------------------------
 //   Shader Functions
 // -------------------------
 

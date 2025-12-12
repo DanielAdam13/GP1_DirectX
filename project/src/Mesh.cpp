@@ -9,7 +9,7 @@
 if (p) {p->Release(); p = nullptr; }
 
 Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
-	ID3D11Device* pDevice)
+	const std::string & diffuseTexturePath, ID3D11Device* pDevice)
 	: m_Vertices{ _vertices },
 	m_Indices{ _indices },
 	m_CurrentTopology{ _primitive },
@@ -20,11 +20,13 @@ Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& 
 	m_WorldMatrix{},
 	m_TranslationMatrix{ Matrix::CreateTranslation(m_Position) },
 	m_RotationMatrix{ Matrix::CreateRotationY(m_RotY) },
-	m_ScaleMatrix{ Matrix::CreateScale(m_Scale) }
+	m_ScaleMatrix{ Matrix::CreateScale(m_Scale) },
+	m_pDiffuseTetxure{}
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	m_pEffect = new Effect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
+	m_pDiffuseTetxure = Texture::LoadFromFile(pDevice, diffuseTexturePath);
 }
 
 Mesh::~Mesh()
@@ -35,6 +37,9 @@ Mesh::~Mesh()
 
 	delete m_pEffect;
 	m_pEffect = nullptr;
+
+	delete m_pDiffuseTetxure;
+	m_pDiffuseTetxure = nullptr;
 }
 
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix)
@@ -42,6 +47,8 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	Matrix worldViewProjectionMatrix{ m_WorldMatrix * viewProjMatrix };
 	m_pEffect->GetWorldViewProjMatrix()->SetMatrix(reinterpret_cast<float*>(&worldViewProjectionMatrix));
+
+	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure); // Bind Texture's SRV to GPU's resource view
 
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

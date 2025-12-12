@@ -10,6 +10,8 @@
 #include "Matrix.h"
 
 class Effect;
+#include "Texture.h"
+#include <string>
 
 using namespace dae;
 
@@ -23,7 +25,7 @@ class Mesh final
 {
 public:
 	Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
-		ID3D11Device* pDevice);
+		const std::string& diffuseTexturePath, ID3D11Device* pDevice);
 	~Mesh();
 
 	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix);
@@ -55,6 +57,8 @@ private:
 	Matrix m_TranslationMatrix;
 	Matrix m_RotationMatrix;
 	Matrix m_ScaleMatrix;
+
+	Texture* m_pDiffuseTetxure;
 
 	void CreateLayouts(ID3D11Device* pDevice);
 

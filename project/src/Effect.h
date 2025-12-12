@@ -5,6 +5,7 @@
 #include <d3dx11effect.h>
 
 #include <string>
+class Texture;
 
 class Effect final
 {
@@ -22,9 +23,13 @@ public:
 
 	ID3DX11EffectMatrixVariable* GetWorldViewProjMatrix() const;
 
+	void SetDiffuseMap(Texture* pDiffuseTexture);
+
 private:
 	ID3DX11Effect* m_pEffect;
 	ID3DX11EffectTechnique* m_pTechnique;
 	
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrixVariable;
+
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVairable;
 };
