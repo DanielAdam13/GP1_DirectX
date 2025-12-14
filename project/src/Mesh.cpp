@@ -51,7 +51,14 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure); // Bind Texture's SRV to GPU's resource view
 
 	// Set Primitive Topology
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if (m_CurrentTopology == PrimitiveTopology::TriangleList)
+	{
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
+	else
+	{
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	}
 	
 	// Set Input Layout
 	pDeviceContext->IASetInputLayout(m_pInputLayout);

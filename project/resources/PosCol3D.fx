@@ -21,9 +21,19 @@ struct VS_OUTPUT
 float4x4 gWorldViewProj : WorldViewProjection;
 
 // -------------------------
-//   Texture Variable
+//   Diffuse Texture Variable
 // -------------------------
 Texture2D gDiffuseMap : DiffuseMap;
+
+// -------------------------
+//   Sampler State (How to Sample Texture)
+// -------------------------
+SamplerState samPoint
+{
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
+    AddressV = Wrap;
+};
 
 // -------------------------
 //   Shader Functions
@@ -35,14 +45,14 @@ VS_OUTPUT VS(VS_INPUT input)
     VS_OUTPUT output = (VS_OUTPUT) 0;
     output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
     output.OutColor = input.InColor;
+    output.UV = input.UV;
     return output;
 }
 
 // Pixel Shader
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(input.OutColor, 1.f);
-
+    return float4(gDiffuseMap.Sample(samPoint, input.UV).rgb, 1.f);
 }
 
 // -------------------------
@@ -57,4 +67,3 @@ technique11 DefaultTechnique
         SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 }
-

@@ -36,13 +36,17 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_Meshes.reserve(1);
 	m_Meshes.emplace_back(std::make_unique<Mesh>(
 		std::vector<VertexIn> {
-		{ {0.f, 0.5f, 0.5f}, { 1.f, 0.f, 0.f } },
-		{ {0.5f, -0.5f, 0.5f}, {0.f, 0.f, 1.f} },
-		{ {-0.5f, -0.5f, 0.5f}, {0.f, 1.f, 0.f} } 
-	},
-		std::vector<uint32_t> {0, 1, 2}, 
+		{ {-3.f, 3.f, -2.f}, {1,0,0}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0,1,0}, {0.5f, 0.f} },
+			{ {3.f, 3.f, -2.f}, {0,0,1}, {1.f, 0.f} }, { {-3.f, 0.f, -2.f}, {1,0,0}, {0.f, 0.5f} },
+			{ {0.f, 0.f, -2.f}, {0,1,0}, {0.5f, 0.5f} }, { {3.f, 0.f, -2.f}, {0,0,1}, {1.f, 0.5f} },
+			{ {-3.f, -3.f, -2.f}, {1,0,0}, {0.f, 1.f} }, { {0.f, -3.f, -2.f}, {0,1,0}, {0.5f, 1.f} },
+			{ {3.f, -3.f, -2.f}, {0,0,1}, {1.f, 1.f} }
+		},
+
+		std::vector<uint32_t> {3, 0, 4, 0, 1, 4, 4, 1, 5, 1, 2, 5, 6, 3, 7, 3, 4, 7, 7, 4, 8, 4, 5, 8 },
+
 		PrimitiveTopology::TriangleList,
-		"resources/vehicle_diffuse.png",
+		"resources/uv_grid_2.png",
 		m_pDevice
 	));
 }
