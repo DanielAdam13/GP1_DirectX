@@ -90,18 +90,18 @@ void Mesh::CreateLayouts(ID3D11Device* pDevice)
 
 	vertexDesc[0].SemanticName = "POSITION";
 	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[0].AlignedByteOffset = 0; // Starts from byte 0
+	vertexDesc[0].AlignedByteOffset = offsetof(VertexIn, position); // Starts from offset position OR byte 0 if using float[3]
 	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	vertexDesc[1].SemanticName = "COLOR";
 	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[1].AlignedByteOffset = 12; // Starts from +3 floats = 12 bytes
+	vertexDesc[1].AlignedByteOffset = offsetof(VertexIn, color); // Starts from offset color OR +3 floats = 12 bytes if using float[3]
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	vertexDesc[2].SemanticName = "TEXCOORD";
 	vertexDesc[2].SemanticIndex = 0;
 	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexDesc[2].AlignedByteOffset = 24; // Starts from +3 +3 floats = 24 bytes
+	vertexDesc[2].AlignedByteOffset = offsetof(VertexIn, UVCoordinate); // Starts from offset UVCoordinate OR +3 +3 floats = 24 bytes if using float[2]
 	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	// Input Layout

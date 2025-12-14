@@ -15,15 +15,15 @@ namespace dae
 {
 	struct VertexIn
 	{
-		float position[3];
-		float color[3];
-		float UBCooridnate[2];
+		Vector3 position{};
+		ColorRGB color{};
+		Vector2 UVCoordinate{};
 	};
 
 	struct VertexOut
 	{
-		float position[4];
-		float color[3];
-		float UBCooridnate[2];
+		Vector4 position{};
+		ColorRGB color{};
+		Vector2 UVCoordinate{};
 	};
 }
