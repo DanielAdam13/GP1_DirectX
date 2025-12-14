@@ -34,6 +34,9 @@ public:
 	void RotateY(float yaw);
 	void Scale(const Vector3& scale);
 
+	std::vector<VertexIn> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+
 private:
 	// Direct X Resources
 	Effect* m_pEffect;
@@ -44,8 +47,7 @@ private:
 	uint32_t m_NumIndices{};
 
 	// Mesh Members
-	std::vector<VertexIn> m_Vertices;
-	std::vector<uint32_t> m_Indices;
+	
 
 	PrimitiveTopology m_CurrentTopology;
 

@@ -8,6 +8,8 @@
 //Project includes
 #include "Renderer.h"
 
+#include "Utils.h"
+
 #define SAFE_RELEASE(p) \
 if (p) {p->Release(); p = nullptr; }
 
@@ -31,10 +33,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::cout << "DirectX initialization failed!\n";
 	}
 
-	m_Camera.Initialize(45.f, { 0.f, 0.f, -10.f }, 0.1f, 100.f);
+	m_Camera.Initialize(45.f, { 0.f, 0.f, -50.f }, 0.1f, 100.f);
 
 	m_Meshes.reserve(1);
-	m_Meshes.emplace_back(std::make_unique<Mesh>(
+	/*m_Meshes.emplace_back(std::make_unique<Mesh>(
 		std::vector<VertexIn> {
 		{ {-3.f, 3.f, -2.f}, {1,0,0}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0,1,0}, {0.5f, 0.f} },
 			{ {3.f, 3.f, -2.f}, {0,0,1}, {1.f, 0.f} }, { {-3.f, 0.f, -2.f}, {1,0,0}, {0.f, 0.5f} },
@@ -47,6 +49,18 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 		PrimitiveTopology::TriangleList,
 		"resources/uv_grid_2.png",
+		m_pDevice
+	));*/
+	std::vector<VertexIn> vertices;
+	std::vector<uint32_t> indices;
+
+	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+
+	m_Meshes.emplace_back(std::make_unique<Mesh>(
+		vertices,
+		indices,
+		PrimitiveTopology::TriangleList,
+		"resources/vehicle_diffuse.png",
 		m_pDevice
 	));
 }
