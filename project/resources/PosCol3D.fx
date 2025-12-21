@@ -42,7 +42,16 @@ SamplerState gSampler;
 // -------------------------
 float4x4 gWorldMatrix : WORLD;
 float3 gCameraPos : CAMERA;
-static const float3 gLightDirection : LIGHT = normalize(float3(0.577f, -0.577f, 0.577f));
+
+struct LIGHT
+{
+    float3 LightDirection : LightDir;
+    float LightIntensity : Intensity;
+};
+
+static const LIGHT gLight1 = { normalize(float3(0.577f, -0.577f, 0.577f)), 7.f };
+
+const float PI = 3.1415f;
 
 // -------------------------
 //   Shader Functions
@@ -55,15 +64,41 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
     output.Color = input.Color;
     output.UV = input.UV;
-    output.Normal = mul(normalize(input.Normal), (float3x3) gWorldViewProj); // Transformed Normal
-    output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldViewProj); // Transformed Tangent
+    output.Normal = mul(normalize(input.Normal), (float3x3) gWorldMatrix); // Transformed Normal to World
+    output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldMatrix); // Transformed Tangent to World
     return output;
 }
 
-// Pixel Shader
+// Pixel Shader Logic
+float3 SampleNormal(float2 uv)
+{
+    float3 normal = gNormalMap.Sample(gSampler, uv).xyz;
+    return normalize(normal * 2.f - 1.f);
+}
+float3 GetLambertColor(VS_OUTPUT input)
+{
+    const float3 N = normalize(input.Normal);
+    const float3 T = normalize(input.Tangent);
+    const float3 B = normalize(cross(N, T)); // Left Handed
+    
+    float3x3 TBN = float3x3(T, B, N);
+    
+    float3 tangentSpaceNormal = SampleNormal(input.UV);
+    float3 worldNormal = normalize(mul(tangentSpaceNormal, TBN));
+    
+    float3 lightDir = normalize(-gLight1.LightDirection);
+    float cosTheta = saturate(dot(worldNormal, lightDir));
+    float3 albedo = gDiffuseMap.Sample(gSampler, input.UV).rgb;
+    const float diffuseReflectance = 1.f;
+    
+    float3 LambertColor = (albedo * diffuseReflectance / PI) * cosTheta * gLight1.LightIntensity;
+    
+    return LambertColor;
+}
+
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return gDiffuseMap.Sample(gSampler, input.UV);
+    return float4(GetLambertColor(input), 1.f);
 }
 
 // -------------------------

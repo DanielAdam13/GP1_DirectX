@@ -146,14 +146,35 @@ HRESULT Renderer::InitializeDirectX()
 	createDeviceFlag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	HRESULT result{ D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlag, &featureLevel,
-		1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext) };
+	// Create DXGI Factory
+	IDXGIFactory1* pDxgiFactory{};
+	HRESULT result{ CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**> (&pDxgiFactory)) };
 	if (FAILED(result))
 		return S_FALSE;
 
-	// Create DXGI Factory
-	IDXGIFactory1* pDxgiFactory{};
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**> (&pDxgiFactory));
+	IDXGIAdapter* adapter = nullptr;
+	IDXGIAdapter* selectedAdapter = nullptr;
+
+	for (UINT i{ 0 }; pDxgiFactory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
+	{
+		DXGI_ADAPTER_DESC desc;
+		adapter->GetDesc(&desc);
+		std::wcout << L"Adapter: " << i << L": " << desc.Description << L"\n";
+
+		if (desc.VendorId != 0x8086) // NVIDIA vendor ID
+		{
+			selectedAdapter = adapter;
+			break;
+		}
+	}
+
+	if (selectedAdapter == nullptr)
+	{
+
+	}
+
+	result = D3D11CreateDevice(selectedAdapter, D3D_DRIVER_TYPE_UNKNOWN, 0, createDeviceFlag, &featureLevel,
+		1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 	if (FAILED(result))
 		return S_FALSE;
 
