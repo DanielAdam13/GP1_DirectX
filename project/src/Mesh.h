@@ -12,6 +12,7 @@
 class Effect;
 #include "Texture.h"
 #include <string>
+#include <memory>
 
 using namespace dae;
 
@@ -24,8 +25,8 @@ enum class PrimitiveTopology
 class Mesh final
 {
 public:
-	Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
-		const std::string& diffuseTexturePath, ID3D11Device* pDevice);
+	Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
+		const std::string& diffuseTexturePath, const std::string& normalTexturePath = "", const std::string& specularTexturePath = "", const std::string& glossTexturePath = "");
 	~Mesh();
 
 	enum class SamplerType
@@ -35,7 +36,7 @@ public:
 		Anisotropic = 2
 	};
 
-	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType);
+	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType, Vector3& cameraPos);
 
 	void Translate(const Vector3& offset);
 	void RotateY(float yaw);
@@ -70,7 +71,10 @@ private:
 	Matrix m_RotationMatrix;
 	Matrix m_ScaleMatrix;
 
-	Texture* m_pDiffuseTetxure;
+	std::unique_ptr<Texture> m_pDiffuseTetxure;
+	std::unique_ptr<Texture> m_pNormalTexture;
+	std::unique_ptr<Texture> m_pSpecularTexture;
+	std::unique_ptr<Texture> m_pGlossTexture;
 
 	void CreateLayouts(ID3D11Device* pDevice);
 	void CreateSamplerStates(ID3D11Device* pDevice);

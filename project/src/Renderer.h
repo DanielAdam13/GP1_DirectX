@@ -56,5 +56,7 @@ namespace dae
 
 		ID3D11Texture2D* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
+
+		void ProcessInput();
 	};
 }

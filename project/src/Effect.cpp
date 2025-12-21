@@ -7,7 +7,9 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 	: m_pEffect{},
 	m_pTechnique{},
 	m_pWorldViewProjMatrixVariable{},
-	m_pDiffuseMapVairable{}
+	m_pDiffuseMapVairable{},
+	m_pWorldMatrixVariable{},
+	m_pCameraPosVariable{}
 {
 	m_pEffect = LoadEffect(pDevice, assetPath);
 	if (!m_pEffect)
@@ -21,6 +23,20 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 	{
 		std::wcout << L"Technique not valid!\n";
 		m_pTechnique = nullptr;
+	}
+
+	m_pWorldMatrixVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+	if (!m_pWorldMatrixVariable->IsValid())
+	{
+		std::wcout << L"m_pWorldMatrixVariable is not valid!\n";
+		m_pWorldMatrixVariable = nullptr;
+	}
+
+	m_pCameraPosVariable = m_pEffect->GetVariableByName("gCameraPos")->AsVector();
+	if (!m_pCameraPosVariable->IsValid())
+	{
+		std::wcout << L"m_pCameraPosVariable is not valid!\n";
+		m_pCameraPosVariable = nullptr;
 	}
 
 	m_pWorldViewProjMatrixVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
@@ -51,6 +67,12 @@ Effect::~Effect()
 
 	if (m_pWorldViewProjMatrixVariable)
 		m_pWorldViewProjMatrixVariable = nullptr; // Matrix is owned by Effect --||--
+
+	if (m_pWorldMatrixVariable)
+		m_pWorldMatrixVariable = nullptr;
+
+	if (m_pCameraPosVariable)
+		m_pCameraPosVariable = nullptr;
 
 	if (m_pDiffuseMapVairable)
 		m_pDiffuseMapVairable = nullptr;
@@ -117,6 +139,16 @@ ID3DX11Effect* Effect::GetEffect() const
 ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
 	return (m_pTechnique && m_pTechnique->IsValid()) ? m_pTechnique : nullptr;
+}
+
+ID3DX11EffectMatrixVariable* Effect::GetWorldMatrix() const
+{
+	return m_pWorldMatrixVariable;
+}
+
+ID3DX11EffectVectorVariable* Effect::GetCameraPos() const
+{
+	return m_pCameraPosVariable;
 }
 
 ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMatrix() const

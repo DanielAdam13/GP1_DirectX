@@ -58,11 +58,14 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
 
 	m_Meshes.emplace_back(std::make_unique<Mesh>(
+		m_pDevice,
 		vertices,
 		indices,
 		PrimitiveTopology::TriangleList,
 		"resources/vehicle_diffuse.png",
-		m_pDevice
+		"resources/vehicle_normal.png",
+		"resources/vehicle_specular.png",
+		"resources/vehicle_gloss.png"
 	));
 }
 
@@ -98,6 +101,8 @@ Renderer::~Renderer()
 
 void Renderer::Update(const Timer* pTimer)
 {
+	ProcessInput();
+
 	for (auto& pMesh : m_Meshes)
 	{
 		pMesh->RotateY(PI_DIV_4 * pTimer->GetElapsed());
@@ -113,24 +118,11 @@ void Renderer::Update(const Timer* pTimer)
 	m_Camera.Update(pTimer, aspectRatio);
 	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
 
-	const uint8_t* pKeyboardState{ SDL_GetKeyboardState(nullptr) };
-
-	static bool wasF2Pressed{ false };
-	bool isF2Pressed = pKeyboardState[SDL_SCANCODE_F2];
-
-	if (wasF2Pressed && !isF2Pressed)
-	{
-		m_CurrentSamplerType = static_cast<Mesh::SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
-		std::wcout << "Sampler State: " << std::to_wstring(static_cast<int>(m_CurrentSamplerType)) << "\n";
-	}
-
-	wasF2Pressed = isF2Pressed;
-
 	// Render Frame
 	// ...
 	for (auto& pMesh : m_Meshes)
 	{
-		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType);
+		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
 	}
 
 
@@ -247,4 +239,20 @@ HRESULT Renderer::InitializeDirectX()
 	m_pDeviceContext->RSSetViewports(1, &viewPort);
 
 	return S_OK;
+}
+
+void dae::Renderer::ProcessInput()
+{
+	const uint8_t* pKeyboardState{ SDL_GetKeyboardState(nullptr) };
+
+	static bool wasF2Pressed{ false };
+	bool isF2Pressed = pKeyboardState[SDL_SCANCODE_F2];
+
+	if (wasF2Pressed && !isF2Pressed)
+	{
+		m_CurrentSamplerType = static_cast<Mesh::SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
+		std::wcout << "Sampler State: " << std::to_wstring(static_cast<int>(m_CurrentSamplerType)) << "\n";
+	}
+
+	wasF2Pressed = isF2Pressed;
 }

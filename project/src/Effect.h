@@ -20,11 +20,13 @@ public:
 
 	ID3DX11Effect* GetEffect() const;
 	ID3DX11EffectTechnique* GetTechnique() const;
+	ID3DX11EffectMatrixVariable* GetWorldMatrix() const;
+	ID3DX11EffectVectorVariable* GetCameraPos() const;
 
 	ID3DX11EffectMatrixVariable* GetWorldViewProjMatrix() const;
 
 	void SetDiffuseMap(Texture* pDiffuseTexture);
-
+	
 private:
 	ID3DX11Effect* m_pEffect;
 	ID3DX11EffectTechnique* m_pTechnique;
@@ -32,4 +34,8 @@ private:
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrixVariable;
 
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVairable;
+
+	// Shading Variables
+	ID3DX11EffectMatrixVariable* m_pWorldMatrixVariable;
+	ID3DX11EffectVectorVariable* m_pCameraPosVariable;
 };

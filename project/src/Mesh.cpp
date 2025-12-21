@@ -8,8 +8,8 @@
 #define SAFE_RELEASE(p) \
 if (p) {p->Release(); p = nullptr; }
 
-Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
-	const std::string & diffuseTexturePath, ID3D11Device* pDevice)
+Mesh::Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>&_vertices, const std::vector<uint32_t>&_indices, PrimitiveTopology _primitive,
+	const std::string & diffuseTexturePath, const std::string& normalTexturePath, const std::string & specularTexturePath, const std::string & glossTexturePath)
 	: m_Vertices{ _vertices },
 	m_Indices{ _indices },
 	m_CurrentTopology{ _primitive },
@@ -21,14 +21,20 @@ Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& 
 	m_TranslationMatrix{ Matrix::CreateTranslation(m_Position) },
 	m_RotationMatrix{ Matrix::CreateRotationY(m_RotY) },
 	m_ScaleMatrix{ Matrix::CreateScale(m_Scale) },
-	m_pDiffuseTetxure{}
+	m_pDiffuseTetxure{},
+	m_pNormalTexture{},
+	m_pSpecularTexture{},
+	m_pGlossTexture{}
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	m_pEffect = new Effect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
 	CreateSamplerStates(pDevice);
 	m_CurrentSampler = m_pPointSampler;
-	m_pDiffuseTetxure = Texture::LoadFromFile(pDevice, diffuseTexturePath);
+	m_pDiffuseTetxure = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, diffuseTexturePath));
+	m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));;
+	m_pSpecularTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, specularTexturePath));
+	m_pGlossTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, glossTexturePath));
 }
 
 Mesh::~Mesh()
@@ -44,17 +50,17 @@ Mesh::~Mesh()
 	delete m_pEffect;
 	m_pEffect = nullptr;
 
-	delete m_pDiffuseTetxure;
-	m_pDiffuseTetxure = nullptr;
+	/*delete m_pDiffuseTetxure;
+	m_pDiffuseTetxure = nullptr;*/
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType, Vector3& cameraPos)
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	Matrix worldViewProjectionMatrix{ m_WorldMatrix * viewProjMatrix };
 	m_pEffect->GetWorldViewProjMatrix()->SetMatrix(reinterpret_cast<float*>(&worldViewProjectionMatrix));
 
-	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure); // Bind Texture's SRV to GPU's resource view
+	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get()); // Bind Texture's SRV to GPU's resource view
 
 	// Set Primitive Topology
 	if (m_CurrentTopology == PrimitiveTopology::TriangleList)
@@ -90,17 +96,27 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 		break;
 	}
 
-	// DRAW
+	// ----- Apply Technique Pass -----
 	D3DX11_TECHNIQUE_DESC techDesc{};
 	m_pEffect->GetTechnique()->GetDesc(&techDesc);
 
-	// Technique has only one pass
-	ID3DX11EffectPass* pass = m_pEffect->GetTechnique()->GetPassByIndex(0);
+	ID3DX11EffectPass* pass = m_pEffect->GetTechnique()->GetPassByIndex(0); // Technique has only one pass
 	pass->Apply(0, pDeviceContext);
 
-	// Bind sampler AFTER applying technique pass !!!
+	// ----- Bind Variables AFTER Technique pass ------
 	pDeviceContext->PSSetSamplers(0, 1, &m_CurrentSampler);
 
+	const auto effectWorldMatrix{ m_pEffect->GetWorldMatrix() };
+	const auto effectCameraPosVector{ m_pEffect->GetCameraPos() }; 
+
+	if (effectWorldMatrix) 
+		effectWorldMatrix->SetMatrix(reinterpret_cast<float*>(&m_WorldMatrix)); 
+
+	if (effectCameraPosVector) 
+		effectCameraPosVector->SetFloatVector(reinterpret_cast<float*>(&cameraPos));
+
+
+	// ----- DRAW -----
 	pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 }
 
