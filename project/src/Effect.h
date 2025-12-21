@@ -26,6 +26,9 @@ public:
 	ID3DX11EffectMatrixVariable* GetWorldViewProjMatrix() const;
 
 	void SetDiffuseMap(Texture* pDiffuseTexture);
+	void SetNormalMap(Texture* pNormalTexture);
+	void SetSpecularMap(Texture* pSpecularTexture);
+	void SetGlossMap(Texture* pGlossTexture);
 	
 private:
 	ID3DX11Effect* m_pEffect;
@@ -34,6 +37,9 @@ private:
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrixVariable;
 
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVairable;
+	ID3DX11EffectShaderResourceVariable* m_pNormalMapVairable;
+	ID3DX11EffectShaderResourceVariable* m_pSpecularMapVairable;
+	ID3DX11EffectShaderResourceVariable* m_pGlossMapVairable;
 
 	// Shading Variables
 	ID3DX11EffectMatrixVariable* m_pWorldMatrixVariable;

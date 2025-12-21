@@ -60,7 +60,11 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	Matrix worldViewProjectionMatrix{ m_WorldMatrix * viewProjMatrix };
 	m_pEffect->GetWorldViewProjMatrix()->SetMatrix(reinterpret_cast<float*>(&worldViewProjectionMatrix));
 
-	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get()); // Bind Texture's SRV to GPU's resource view
+	// Bind Texture's SRV to GPU's resource view
+	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get()); 
+	m_pEffect->SetNormalMap(m_pNormalTexture.get());
+	m_pEffect->SetSpecularMap(m_pSpecularTexture.get());
+	m_pEffect->SetGlossMap(m_pGlossTexture.get());
 
 	// Set Primitive Topology
 	if (m_CurrentTopology == PrimitiveTopology::TriangleList)
