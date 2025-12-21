@@ -37,6 +37,10 @@ Mesh::~Mesh()
 	SAFE_RELEASE(m_pIndexBuffer);
 	SAFE_RELEASE(m_pInputLayout);
 
+	SAFE_RELEASE(m_pPointSampler);
+	SAFE_RELEASE(m_pLinearSampler);
+	SAFE_RELEASE(m_pAnisotropicSampler);
+
 	delete m_pEffect;
 	m_pEffect = nullptr;
 

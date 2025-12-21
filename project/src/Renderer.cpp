@@ -98,6 +98,11 @@ Renderer::~Renderer()
 
 void Renderer::Update(const Timer* pTimer)
 {
+	for (auto& pMesh : m_Meshes)
+	{
+		pMesh->RotateY(PI_DIV_4 * pTimer->GetElapsed());
+	}
+
 	// Clear Views at the start of each Frame
 	constexpr float color[4] = { 0.3f, 0.f, 0.3f, 1.f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
@@ -116,6 +121,7 @@ void Renderer::Update(const Timer* pTimer)
 	if (wasF2Pressed && !isF2Pressed)
 	{
 		m_CurrentSamplerType = static_cast<Mesh::SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
+		std::wcout << "Sampler State: " << std::to_wstring(static_cast<int>(m_CurrentSamplerType)) << "\n";
 	}
 
 	wasF2Pressed = isF2Pressed;

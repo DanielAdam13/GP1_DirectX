@@ -28,25 +28,6 @@ Texture2D gDiffuseMap : DiffuseMap;
 // -------------------------
 //   Sampler States (How to Sample Texture)
 // -------------------------
-//SamplerState samPoint
-//{
-//    Filter = MIN_MAG_MIP_POINT;
-//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
-//    AddressV = Wrap;
-//};
-//SamplerState samLinear
-//{
-//    Filter = MIN_MAG_MIP_LINEAR;
-//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
-//    AddressV = Wrap;
-//};
-//SamplerState samAnisotropic
-//{
-//    Filter = MIN_MAG_MIP_ANISOTROPIC;
-//    MaxAnisotropy = 16;
-//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
-//    AddressV = Wrap;
-//};
 SamplerState gSampler;
 
 // -------------------------
@@ -80,16 +61,4 @@ technique11 DefaultTechnique
         SetGeometryShader( NULL );
         SetPixelShader(CompileShader(ps_5_0, PS()));
     }
-    //pass P1
-    //{
-    //    SetVertexShader(CompileShader(vs_5_0, VS()));
-    //    SetGeometryShader(NULL);
-    //    SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
-    //}
-    //pass P2
-    //{
-    //    SetVertexShader(CompileShader(vs_5_0, VS()));
-    //    SetGeometryShader(NULL);
-    //    SetPixelShader(CompileShader(ps_5_0, PS_Aniso()));
-    //}
 }
