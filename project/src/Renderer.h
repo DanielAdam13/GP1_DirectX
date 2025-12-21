@@ -42,6 +42,7 @@ namespace dae
 
 		Camera m_Camera{};
 		std::vector<std::unique_ptr<Mesh>> m_Meshes{};
+		Mesh::SamplerType m_CurrentSamplerType;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();

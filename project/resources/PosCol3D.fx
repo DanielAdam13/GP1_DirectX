@@ -26,14 +26,28 @@ float4x4 gWorldViewProj : WorldViewProjection;
 Texture2D gDiffuseMap : DiffuseMap;
 
 // -------------------------
-//   Sampler State (How to Sample Texture)
+//   Sampler States (How to Sample Texture)
 // -------------------------
-SamplerState samPoint
-{
-    Filter = MIN_MAG_MIP_POINT;
-    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
-    AddressV = Wrap;
-};
+//SamplerState samPoint
+//{
+//    Filter = MIN_MAG_MIP_POINT;
+//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
+//    AddressV = Wrap;
+//};
+//SamplerState samLinear
+//{
+//    Filter = MIN_MAG_MIP_LINEAR;
+//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
+//    AddressV = Wrap;
+//};
+//SamplerState samAnisotropic
+//{
+//    Filter = MIN_MAG_MIP_ANISOTROPIC;
+//    MaxAnisotropy = 16;
+//    AddressU = Wrap; // Ohter options: Mirror, Clamp, Border
+//    AddressV = Wrap;
+//};
+SamplerState gSampler;
 
 // -------------------------
 //   Shader Functions
@@ -52,7 +66,7 @@ VS_OUTPUT VS(VS_INPUT input)
 // Pixel Shader
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(gDiffuseMap.Sample(samPoint, input.UV).rgb, 1.f);
+    return gDiffuseMap.Sample(gSampler, input.UV);
 }
 
 // -------------------------
@@ -64,6 +78,18 @@ technique11 DefaultTechnique
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS() ) );
+        SetPixelShader(CompileShader(ps_5_0, PS()));
     }
+    //pass P1
+    //{
+    //    SetVertexShader(CompileShader(vs_5_0, VS()));
+    //    SetGeometryShader(NULL);
+    //    SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
+    //}
+    //pass P2
+    //{
+    //    SetVertexShader(CompileShader(vs_5_0, VS()));
+    //    SetGeometryShader(NULL);
+    //    SetPixelShader(CompileShader(ps_5_0, PS_Aniso()));
+    //}
 }

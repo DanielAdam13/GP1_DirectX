@@ -11,7 +11,10 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 {
 	m_pEffect = LoadEffect(pDevice, assetPath);
 	if (!m_pEffect)
+	{
+		std::wcout << L"Effect failed to load: " << assetPath << L"\n";
 		return;
+	}
 
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid())
@@ -24,12 +27,14 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetPath)
 	if (!m_pWorldViewProjMatrixVariable->IsValid())
 	{
 		std::wcout << L"m_pWorldViewProjMatrixVariable is not valid!\n";
+		m_pWorldViewProjMatrixVariable = nullptr;
 	}
 
 	m_pDiffuseMapVairable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVairable->IsValid())
 	{
 		std::wcout << L"m_pDiffuseMapVariable not valid!\n";
+		m_pDiffuseMapVairable = nullptr;
 	}
 }
 

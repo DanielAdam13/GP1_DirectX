@@ -16,7 +16,8 @@ if (p) {p->Release(); p = nullptr; }
 using namespace dae;
 
 Renderer::Renderer(SDL_Window* pWindow) :
-	m_pWindow(pWindow)
+	m_pWindow(pWindow),
+	m_CurrentSamplerType{ Mesh::SamplerType::Point }
 {
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
@@ -107,11 +108,23 @@ void Renderer::Update(const Timer* pTimer)
 	m_Camera.Update(pTimer, aspectRatio);
 	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
 
+	const uint8_t* pKeyboardState{ SDL_GetKeyboardState(nullptr) };
+
+	static bool wasF2Pressed{ false };
+	bool isF2Pressed = pKeyboardState[SDL_SCANCODE_F2];
+
+	if (wasF2Pressed && !isF2Pressed)
+	{
+		m_CurrentSamplerType = static_cast<Mesh::SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
+	}
+
+	wasF2Pressed = isF2Pressed;
+
 	// Render Frame
 	// ...
 	for (auto& pMesh : m_Meshes)
 	{
-		pMesh->Render(m_pDeviceContext, viewProjMatrix);
+		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType);
 	}
 
 

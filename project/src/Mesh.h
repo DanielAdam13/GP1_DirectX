@@ -28,7 +28,14 @@ public:
 		const std::string& diffuseTexturePath, ID3D11Device* pDevice);
 	~Mesh();
 
-	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix);
+	enum class SamplerType
+	{
+		Point = 0,
+		Linear = 1,
+		Anisotropic = 2
+	};
+
+	void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType);
 
 	void Translate(const Vector3& offset);
 	void RotateY(float yaw);
@@ -46,9 +53,12 @@ private:
 	ID3D11Buffer* m_pIndexBuffer{};
 	uint32_t m_NumIndices{};
 
-	// Mesh Members
-	
+	ID3D11SamplerState* m_pPointSampler{};
+	ID3D11SamplerState* m_pLinearSampler{};
+	ID3D11SamplerState* m_pAnisotropicSampler{};
+	ID3D11SamplerState* m_CurrentSampler{};
 
+	// Mesh Members
 	PrimitiveTopology m_CurrentTopology;
 
 	Vector3 m_Position;
@@ -63,6 +73,6 @@ private:
 	Texture* m_pDiffuseTetxure;
 
 	void CreateLayouts(ID3D11Device* pDevice);
-
+	void CreateSamplerStates(ID3D11Device* pDevice);
 	
 };

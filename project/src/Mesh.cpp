@@ -26,6 +26,8 @@ Mesh::Mesh(const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& 
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	m_pEffect = new Effect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
+	CreateSamplerStates(pDevice);
+	m_CurrentSampler = m_pPointSampler;
 	m_pDiffuseTetxure = Texture::LoadFromFile(pDevice, diffuseTexturePath);
 }
 
@@ -42,7 +44,7 @@ Mesh::~Mesh()
 	m_pDiffuseTetxure = nullptr;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMatrix, SamplerType samplerType)
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 	Matrix worldViewProjectionMatrix{ m_WorldMatrix * viewProjMatrix };
@@ -71,15 +73,31 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	// Set Index Buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
+	switch (samplerType)
+	{
+	case Mesh::SamplerType::Point:        
+		m_CurrentSampler = m_pPointSampler; 
+		break;
+	case Mesh::SamplerType::Linear:       
+		m_CurrentSampler = m_pLinearSampler; 
+		break;
+	case Mesh::SamplerType::Anisotropic:  
+		m_CurrentSampler = m_pAnisotropicSampler; 
+		break;
+	}
+
 	// DRAW
 	D3DX11_TECHNIQUE_DESC techDesc{};
 	m_pEffect->GetTechnique()->GetDesc(&techDesc);
 
-	for (UINT p{}; p < techDesc.Passes; ++p)
-	{
-		m_pEffect->GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
-		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
-	}
+	// Technique has only one pass
+	ID3DX11EffectPass* pass = m_pEffect->GetTechnique()->GetPassByIndex(0);
+	pass->Apply(0, pDeviceContext);
+
+	// Bind sampler AFTER applying technique pass !!!
+	pDeviceContext->PSSetSamplers(0, 1, &m_CurrentSampler);
+
+	pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 }
 
 void Mesh::CreateLayouts(ID3D11Device* pDevice)
@@ -146,6 +164,30 @@ void Mesh::CreateLayouts(ID3D11Device* pDevice)
 
 	if (FAILED(result))
 		return;
+}
+
+void Mesh::CreateSamplerStates(ID3D11Device* pDevice)
+{
+	D3D11_SAMPLER_DESC desc{};
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	// Point
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	m_pPointSampler = nullptr;
+	pDevice->CreateSamplerState(&desc, &m_pPointSampler);
+
+	// Linear
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	m_pLinearSampler = nullptr;
+	pDevice->CreateSamplerState(&desc, &m_pLinearSampler);
+
+	// Anisotropic
+	desc.Filter = D3D11_FILTER_ANISOTROPIC;
+	desc.MaxAnisotropy = 16;
+	m_pAnisotropicSampler = nullptr;
+	pDevice->CreateSamplerState(&desc, &m_pAnisotropicSampler);
 }
 
 void Mesh::Translate(const Vector3& offset)
