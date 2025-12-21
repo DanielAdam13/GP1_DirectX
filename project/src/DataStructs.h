@@ -18,6 +18,8 @@ namespace dae
 		Vector3 position{};
 		ColorRGB color{};
 		Vector2 UVCoordinate{};
+		Vector3 normal{};
+		Vector3 tangent{};
 	};
 
 	struct VertexOut
@@ -25,5 +27,7 @@ namespace dae
 		Vector4 position{};
 		ColorRGB color{};
 		Vector2 UVCoordinate{};
+		Vector3 normal{};
+		Vector3 tangent{};
 	};
 }

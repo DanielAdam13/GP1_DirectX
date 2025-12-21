@@ -4,15 +4,19 @@
 struct VS_INPUT
 {
     float3 Position : POSITION;
-    float3 InColor : COLOR;
+    float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 struct VS_OUTPUT
 {
     float4 Position : SV_Position;
-    float3 OutColor : COLOR;
+    float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 // -------------------------
@@ -39,8 +43,10 @@ VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT) 0;
     output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
-    output.OutColor = input.InColor;
+    output.Color = input.Color;
     output.UV = input.UV;
+    output.Normal = input.Normal;
+    output.Tangent = input.Tangent;
     return output;
 }
 

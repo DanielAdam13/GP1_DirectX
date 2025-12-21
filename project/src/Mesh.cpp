@@ -107,7 +107,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 void Mesh::CreateLayouts(ID3D11Device* pDevice)
 {
 	// Vertex Layout
-	static constexpr uint32_t numElements{ 3 };
+	static constexpr uint32_t numElements{ 5 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -125,6 +125,16 @@ void Mesh::CreateLayouts(ID3D11Device* pDevice)
 	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
 	vertexDesc[2].AlignedByteOffset = offsetof(VertexIn, UVCoordinate); // Starts from offset UVCoordinate OR +3 +3 floats = 24 bytes if using float[2]
 	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[3].SemanticName = "NORMAL";
+	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[3].AlignedByteOffset = offsetof(VertexIn, normal);
+	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[4].SemanticName = "TANGENT";
+	vertexDesc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[4].AlignedByteOffset = offsetof(VertexIn, tangent);
+	vertexDesc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	// Input Layout
 	D3DX11_PASS_DESC passDesc{};
