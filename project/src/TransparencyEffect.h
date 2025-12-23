@@ -1,3 +1,4 @@
+#pragma once
 #include "Effect.h"
 
 class TransparencyEffect final : public Effect

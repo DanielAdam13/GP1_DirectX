@@ -18,7 +18,7 @@ using namespace dae;
 
 Renderer::Renderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow),
-	m_CurrentSamplerType{ Mesh::SamplerType::Point }
+	m_CurrentSamplerType{ SamplerType::Point }
 {
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
@@ -37,7 +37,8 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	m_Camera.Initialize(45.f, { 0.f, 0.f, -50.f }, 0.1f, 100.f);
 
-	m_Meshes.reserve(1);
+
+	m_OpaqueMeshes.reserve(1);
 	/*m_Meshes.emplace_back(std::make_unique<Mesh>(
 		m_pDevice,
 		std::vector<VertexIn> {
@@ -53,15 +54,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		PrimitiveTopology::TriangleList,
 		"resources/uv_grid_2.png"
 	));*/
-	std::vector<VertexIn> vertices;
-	std::vector<uint32_t> indices;
 
-	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-
-	m_Meshes.emplace_back(std::make_unique<Mesh>(
+	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
 		m_pDevice,
 		"resources/vehicle.obj",
-		Effect::EffectType::Opaque,
 		PrimitiveTopology::TriangleList,
 		"resources/vehicle_diffuse.png",
 		"resources/vehicle_normal.png",
@@ -104,7 +100,7 @@ void Renderer::Update(const Timer* pTimer)
 {
 	ProcessInput();
 
-	for (auto& pMesh : m_Meshes)
+	for (auto& pMesh : m_OpaqueMeshes)
 	{
 		//pMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
@@ -121,7 +117,7 @@ void Renderer::Update(const Timer* pTimer)
 
 	// Render Frame
 	// ...
-	for (auto& pMesh : m_Meshes)
+	for (auto& pMesh : m_OpaqueMeshes)
 	{
 		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
 	}
@@ -272,7 +268,7 @@ void dae::Renderer::ProcessInput()
 
 	if (wasF2Pressed && !isF2Pressed)
 	{
-		m_CurrentSamplerType = static_cast<Mesh::SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
+		m_CurrentSamplerType = static_cast<SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
 		std::wcout << "Sampler State: " << std::to_wstring(static_cast<int>(m_CurrentSamplerType)) << "\n";
 	}
 

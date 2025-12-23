@@ -41,8 +41,10 @@ namespace dae
 		bool m_IsInitialized{ false };
 
 		Camera m_Camera{};
-		std::vector<std::unique_ptr<Mesh>> m_Meshes{};
-		Mesh::SamplerType m_CurrentSamplerType;
+		std::vector<std::unique_ptr<Mesh<ShadingEffect>>> m_OpaqueMeshes{};
+		SamplerType m_CurrentSamplerType;
+
+		std::unique_ptr<ShadingEffect> m_pOpaqueEffect;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();

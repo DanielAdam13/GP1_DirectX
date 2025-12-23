@@ -1,3 +1,4 @@
+#pragma once
 #include "Effect.h"
 
 class ShadingEffect final : public Effect
@@ -9,12 +10,12 @@ public:
 	ShadingEffect(ShadingEffect&& effect) = delete;
 	virtual ~ShadingEffect() noexcept;
 	
-	virtual ID3DX11EffectMatrixVariable* GetWorldMatrix() const;
-	virtual ID3DX11EffectVectorVariable* GetCameraPos() const;
+	virtual ID3DX11EffectMatrixVariable* GetWorldMatrix() const override;
+	virtual ID3DX11EffectVectorVariable* GetCameraPos() const override;
 
-	virtual void SetNormalMap(Texture* pNormalTexture);
-	virtual void SetSpecularMap(Texture* pSpecularTexture);
-	virtual void SetGlossMap(Texture* pGlossTexture);
+	virtual void SetNormalMap(Texture* pNormalTexture) override;
+	virtual void SetSpecularMap(Texture* pSpecularTexture) override;
+	virtual void SetGlossMap(Texture* pGlossTexture) override;
 	
 private:
 

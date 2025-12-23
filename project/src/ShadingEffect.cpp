@@ -4,7 +4,7 @@
 #include "Texture.h"
 
 ShadingEffect::ShadingEffect(ID3D11Device* pDevice)
-	: Effect::Effect(pDevice, L"PosCol3D.fx")
+	: Effect::Effect(pDevice, L"resources/PosCol3D.fx")
 {
 	m_pNormalMapVairable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
 	if (!m_pNormalMapVairable->IsValid())

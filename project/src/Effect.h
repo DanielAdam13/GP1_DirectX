@@ -23,6 +23,13 @@ public:
 
 	virtual void SetDiffuseMap(Texture* pDiffuseTexture);
 
+	virtual ID3DX11EffectMatrixVariable* GetWorldMatrix() const { return nullptr; };
+	virtual ID3DX11EffectVectorVariable* GetCameraPos() const { return nullptr; };
+
+	virtual void SetNormalMap(Texture* pNormalTexture) {};
+	virtual void SetSpecularMap(Texture* pSpecularTexture) {};
+	virtual void SetGlossMap(Texture* pGlossTexture) {};
+
 	enum class EffectType
 	{
 		Opaque,
