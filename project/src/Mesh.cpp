@@ -3,7 +3,7 @@
 #include "Vector3.h"
 #include "Vector4.h"
 #include "ColorRGB.h"
-#include "Effect.h"
+#include "ShadingEffect.h"
 
 #define SAFE_RELEASE(p) \
 if (p) {p->Release(); p = nullptr; }
@@ -27,7 +27,7 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>&_vertices, const s
 	m_pGlossTexture{}
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
-	m_pEffect = new Effect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
+	m_pEffect = new ShadingEffect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
 	CreateSamplerStates(pDevice);
 	m_CurrentSampler = m_pPointSampler;

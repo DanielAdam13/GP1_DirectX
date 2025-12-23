@@ -9,7 +9,7 @@
 #include <vector>
 #include "Matrix.h"
 
-class Effect;
+class ShadingEffect;
 #include "Texture.h"
 #include <string>
 #include <memory>
@@ -47,7 +47,7 @@ public:
 
 private:
 	// Direct X Resources
-	Effect* m_pEffect;
+	ShadingEffect* m_pEffect;
 
 	ID3D11InputLayout* m_pInputLayout{};
 	ID3D11Buffer* m_pVertexBuffer{};
