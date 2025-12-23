@@ -4,7 +4,6 @@
 struct VS_INPUT
 {
     float3 Position : POSITION;
-    float3 Color : COLOR;
     float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
@@ -13,7 +12,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 Position : SV_Position;
-    float3 Color : COLOR;
+    float4 WorldPos : WORLD;
     float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
@@ -48,10 +47,9 @@ struct LIGHT
     float3 LightDirection : LightDir;
     float LightIntensity : Intensity;
 };
-
 static const LIGHT gLight1 = { normalize(float3(0.577f, -0.577f, 0.577f)), 7.f };
 
-const float PI = 3.1415f;
+const float PI = 3.14159f;
 
 // -------------------------
 //   Shader Functions
@@ -62,43 +60,76 @@ VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT) 0;
     output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
-    output.Color = input.Color;
+    output.WorldPos = mul(float4(input.Position, 1.f), gWorldMatrix);
     output.UV = input.UV;
-    output.Normal = mul(normalize(input.Normal), (float3x3) gWorldMatrix); // Transformed Normal to World
-    output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldMatrix); // Transformed Tangent to World
+    output.Normal = mul(normalize(input.Normal), (float3x3) gWorldMatrix).xyz; // Transformed Normal to World
+    output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldMatrix).xyz; // Transformed Tangent to World
+    
     return output;
 }
 
 // Pixel Shader Logic
-float3 SampleNormal(float2 uv)
+float3 GetLambertColor(in VS_OUTPUT input, float3 N, float3 lightDir)
 {
-    float3 normal = gNormalMap.Sample(gSampler, uv).xyz;
-    return normalize(normal * 2.f - 1.f);
-}
-float3 GetLambertColor(VS_OUTPUT input)
-{
-    const float3 N = normalize(input.Normal);
-    const float3 T = normalize(input.Tangent);
-    const float3 B = normalize(cross(N, T)); // Left Handed
-    
-    float3x3 TBN = float3x3(T, B, N);
-    
-    float3 tangentSpaceNormal = SampleNormal(input.UV);
-    float3 worldNormal = normalize(mul(tangentSpaceNormal, TBN));
-    
-    float3 lightDir = normalize(-gLight1.LightDirection);
-    float cosTheta = saturate(dot(worldNormal, lightDir));
-    float3 albedo = gDiffuseMap.Sample(gSampler, input.UV).rgb;
+    const float cosTheta = saturate(dot(N, lightDir));
+    const float3 albedo = gDiffuseMap.Sample(gSampler, input.UV).rgb;
     const float diffuseReflectance = 1.f;
     
-    float3 LambertColor = (albedo * diffuseReflectance / PI) * cosTheta * gLight1.LightIntensity;
+    const float3 LambertColor = (albedo * diffuseReflectance / PI) * cosTheta * gLight1.LightIntensity;
     
     return LambertColor;
 }
 
+float3 GetPhongColor(in VS_OUTPUT input, float3 N, float3 lightVector)
+{
+    const float lightHitNormal = dot(N, lightVector);
+    
+    if (lightHitNormal <= 0.f)
+    {
+        return float3(0, 0, 0);
+    }
+    
+    const float3 sampledSpecular = gSpecularMap.Sample(gSampler, input.UV).rgb;
+    const float sampledGloss = gGlossinessMap.Sample(gSampler, input.UV).r;
+    
+    const float shininess = 100.f;
+    const float phongExponent = sampledGloss * shininess;
+    
+    const float3 viewDirection = normalize(gCameraPos - input.WorldPos.xyz);
+    
+    const float3 reflectRay = reflect(-lightVector, N);
+    const float cosA = saturate(dot(reflectRay, viewDirection));
+    const float expCosA = pow(cosA, phongExponent);
+    
+    const float3 SpecularColor = sampledSpecular.r * sampledSpecular * expCosA * gLight1.LightIntensity;
+    
+    return SpecularColor;
+}
+
+float3 SampleNormal(float2 inputUV)
+{
+    float3 normal = gNormalMap.Sample(gSampler, inputUV).xyz;
+    return normalize(normal * 2.f - 1.f);
+}
+
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(GetLambertColor(input), 1.f);
+    float3 N = normalize(input.Normal);
+    const float3 lightDir = normalize(-gLight1.LightDirection);
+    
+    // Calculating World Normal
+    const float3 T = normalize(input.Tangent);
+    const float3 B = normalize(cross(N, T));
+    
+    const float3x3 TBN = float3x3(T, B, N);
+    
+    const float3 tangentSpaceNormal = SampleNormal(input.UV).rgb;
+    const float3 worldNormal = normalize(mul(tangentSpaceNormal, TBN));
+    
+    const float3 LambertColor = GetLambertColor(input, worldNormal, lightDir);
+    const float3 PhongColor = GetPhongColor(input, worldNormal, lightDir);
+
+    return float4(LambertColor + PhongColor, 1.f);
 }
 
 // -------------------------

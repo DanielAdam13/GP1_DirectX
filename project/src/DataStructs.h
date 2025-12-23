@@ -16,7 +16,6 @@ namespace dae
 	struct VertexIn
 	{
 		Vector3 position{};
-		ColorRGB color{};
 		Vector2 UVCoordinate{};
 		Vector3 normal{};
 		Vector3 tangent{};
@@ -25,7 +24,6 @@ namespace dae
 	struct VertexOut
 	{
 		Vector4 position{};
-		ColorRGB color{};
 		Vector2 UVCoordinate{};
 		Vector3 normal{};
 		Vector3 tangent{};

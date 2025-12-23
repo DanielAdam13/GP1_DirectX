@@ -38,6 +38,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	m_Meshes.reserve(1);
 	/*m_Meshes.emplace_back(std::make_unique<Mesh>(
+		m_pDevice,
 		std::vector<VertexIn> {
 		{ {-3.f, 3.f, -2.f}, {1,0,0}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0,1,0}, {0.5f, 0.f} },
 			{ {3.f, 3.f, -2.f}, {0,0,1}, {1.f, 0.f} }, { {-3.f, 0.f, -2.f}, {1,0,0}, {0.f, 0.5f} },
@@ -49,8 +50,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::vector<uint32_t> {3, 0, 4, 0, 1, 4, 4, 1, 5, 1, 2, 5, 6, 3, 7, 3, 4, 7, 7, 4, 8, 4, 5, 8 },
 
 		PrimitiveTopology::TriangleList,
-		"resources/uv_grid_2.png",
-		m_pDevice
+		"resources/uv_grid_2.png"
 	));*/
 	std::vector<VertexIn> vertices;
 	std::vector<uint32_t> indices;
@@ -105,7 +105,7 @@ void Renderer::Update(const Timer* pTimer)
 
 	for (auto& pMesh : m_Meshes)
 	{
-		pMesh->RotateY(PI_DIV_4 * pTimer->GetElapsed());
+		//pMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
 
 	// Clear Views at the start of each Frame
