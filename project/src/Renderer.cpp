@@ -9,6 +9,7 @@
 #include "Renderer.h"
 
 #include "Utils.h"
+#include "Effect.h"
 
 #define SAFE_RELEASE(p) \
 if (p) {p->Release(); p = nullptr; }
@@ -59,8 +60,8 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	m_Meshes.emplace_back(std::make_unique<Mesh>(
 		m_pDevice,
-		vertices,
-		indices,
+		"resources/vehicle.obj",
+		Effect::EffectType::Opaque,
 		PrimitiveTopology::TriangleList,
 		"resources/vehicle_diffuse.png",
 		"resources/vehicle_normal.png",

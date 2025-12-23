@@ -9,7 +9,10 @@
 #include <vector>
 #include "Matrix.h"
 
+class TransparencyEffect;
 class ShadingEffect;
+#include "Effect.h"
+
 #include "Texture.h"
 #include <string>
 #include <memory>
@@ -25,7 +28,7 @@ enum class PrimitiveTopology
 class Mesh final
 {
 public:
-	Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>& _vertices, const std::vector<uint32_t>& _indices, PrimitiveTopology _primitive,
+	Mesh(ID3D11Device* pDevice, const std::string& mainBodyMeshOBJ, Effect::EffectType effectType, PrimitiveTopology _primitive,
 		const std::string& diffuseTexturePath, const std::string& normalTexturePath = "", const std::string& specularTexturePath = "", const std::string& glossTexturePath = "");
 	~Mesh();
 
@@ -42,24 +45,12 @@ public:
 	void RotateY(float yaw);
 	void Scale(const Vector3& scale);
 
+private:
+	// Mesh Members
+	std::unique_ptr<Effect> m_pEffect;
 	std::vector<VertexIn> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-private:
-	// Direct X Resources
-	ShadingEffect* m_pEffect;
-
-	ID3D11InputLayout* m_pInputLayout{};
-	ID3D11Buffer* m_pVertexBuffer{};
-	ID3D11Buffer* m_pIndexBuffer{};
-	uint32_t m_NumIndices{};
-
-	ID3D11SamplerState* m_pPointSampler{};
-	ID3D11SamplerState* m_pLinearSampler{};
-	ID3D11SamplerState* m_pAnisotropicSampler{};
-	ID3D11SamplerState* m_CurrentSampler{};
-
-	// Mesh Members
 	PrimitiveTopology m_CurrentTopology;
 
 	Vector3 m_Position;
@@ -78,5 +69,17 @@ private:
 
 	void CreateLayouts(ID3D11Device* pDevice);
 	void CreateSamplerStates(ID3D11Device* pDevice);
-	
+	std::unique_ptr<Effect> CreateEffect(Effect::EffectType effecttype, ID3D11Device* pDevice);
+
+	// Direct X Resources
+	ID3D11InputLayout* m_pInputLayout{};
+	ID3D11Buffer* m_pVertexBuffer{};
+	ID3D11Buffer* m_pIndexBuffer{};
+	uint32_t m_NumIndices{};
+
+	ID3D11SamplerState* m_pPointSampler{};
+	ID3D11SamplerState* m_pLinearSampler{};
+	ID3D11SamplerState* m_pAnisotropicSampler{};
+	ID3D11SamplerState* m_CurrentSampler{};
+
 };

@@ -1,23 +1,44 @@
+#pragma once
 // DirectX Headers
 #include <dxgi.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
+class Texture;
 #include <string>
 
-class Effect abstract
+class Effect
 {
 public:
-	Effect(ID3D11Device* pDevice, const std::wstring& assetPath);
+	Effect() = default;
 	Effect(Effect& other) = delete;
 	Effect(const Effect& other) = delete;
 	Effect(Effect&& rffect) = delete;
-	~Effect() noexcept;
+	virtual ~Effect() noexcept;
+
+	virtual ID3DX11Effect* GetEffect() const;
+	virtual ID3DX11EffectTechnique* GetTechnique() const;
+	virtual ID3DX11EffectMatrixVariable* GetWorldViewProjMatrix() const;
+
+	virtual void SetDiffuseMap(Texture* pDiffuseTexture);
+
+	enum class EffectType
+	{
+		Opaque,
+		Transparent
+	};
 
 protected:
+	Effect(ID3D11Device* pDevice, const std::wstring& assetPath);
 	ID3DX11Effect* m_pEffect;
 	ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetPath);
+
+	ID3DX11EffectTechnique* m_pTechnique;
+
+	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrixVariable;
+
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVairable;
 
 private:
 	

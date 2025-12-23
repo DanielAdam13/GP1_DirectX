@@ -4,16 +4,18 @@
 #include "Vector4.h"
 #include "ColorRGB.h"
 #include "ShadingEffect.h"
+#include "TransparencyEffect.h"
+#include "Effect.h"
 
 #define SAFE_RELEASE(p) \
 if (p) {p->Release(); p = nullptr; }
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>&_vertices, const std::vector<uint32_t>&_indices, PrimitiveTopology _primitive,
+Mesh::Mesh(ID3D11Device* pDevice, const std::string& mainBodyMeshOBJ, Effect::EffectType effectType, PrimitiveTopology _primitive,
 	const std::string & diffuseTexturePath, const std::string& normalTexturePath, const std::string & specularTexturePath, const std::string & glossTexturePath)
-	: m_Vertices{ _vertices },
-	m_Indices{ _indices },
+	: m_pEffect{ CreateEffect(effectType, pDevice) },
+	m_Vertices{},
+	m_Indices{},
 	m_CurrentTopology{ _primitive },
-	m_pEffect{},
 	m_Position{ 0.f, 0.f, 0.f },
 	m_RotY{ 0.f },
 	m_Scale{ 1.f, 1.f, 1.f },
@@ -27,7 +29,6 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>&_vertices, const s
 	m_pGlossTexture{}
 {
 	m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
-	m_pEffect = new ShadingEffect(pDevice, L"resources/PosCol3D.fx"); // Mesh owns Effect FOR NOW
 	CreateLayouts(pDevice);
 	CreateSamplerStates(pDevice);
 	m_CurrentSampler = m_pPointSampler;
@@ -47,9 +48,6 @@ Mesh::~Mesh()
 	SAFE_RELEASE(m_pLinearSampler);
 	SAFE_RELEASE(m_pAnisotropicSampler);
 
-	delete m_pEffect;
-	m_pEffect = nullptr;
-
 	/*delete m_pDiffuseTetxure;
 	m_pDiffuseTetxure = nullptr;*/
 }
@@ -61,10 +59,18 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	m_pEffect->GetWorldViewProjMatrix()->SetMatrix(reinterpret_cast<float*>(&worldViewProjectionMatrix));
 
 	// Bind Texture's SRV to GPU's resource view
-	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get()); 
-	m_pEffect->SetNormalMap(m_pNormalTexture.get());
-	m_pEffect->SetSpecularMap(m_pSpecularTexture.get());
-	m_pEffect->SetGlossMap(m_pGlossTexture.get());
+	m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get());
+
+	if (auto* shading = dynamic_cast<ShadingEffect*>(m_pEffect.get()))
+	{
+		shading->SetNormalMap(m_pNormalTexture.get());
+		shading->SetSpecularMap(m_pSpecularTexture.get());
+		shading->SetGlossMap(m_pGlossTexture.get());
+	}
+
+	//m_pEffect->SetNormalMap(m_pNormalTexture.get());
+	//m_pEffect->SetSpecularMap(m_pSpecularTexture.get());
+	//m_pEffect->SetGlossMap(m_pGlossTexture.get());
 
 	// Set Primitive Topology
 	if (m_CurrentTopology == PrimitiveTopology::TriangleList)
@@ -110,15 +116,17 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjMat
 	// ----- Bind Variables AFTER Technique pass ------
 	pDeviceContext->PSSetSamplers(0, 1, &m_CurrentSampler);
 
-	const auto effectWorldMatrix{ m_pEffect->GetWorldMatrix() };
-	const auto effectCameraPosVector{ m_pEffect->GetCameraPos() }; 
+	if (auto* shading = dynamic_cast<ShadingEffect*>(m_pEffect.get()))
+	{
+		const auto effectWorldMatrix{ shading->GetWorldMatrix() };
+		const auto effectCameraPosVector{ shading->GetCameraPos() };
 
-	if (effectWorldMatrix) 
-		effectWorldMatrix->SetMatrix(reinterpret_cast<float*>(&m_WorldMatrix)); 
+		if (effectWorldMatrix)
+			effectWorldMatrix->SetMatrix(reinterpret_cast<float*>(&m_WorldMatrix));
 
-	if (effectCameraPosVector) 
-		effectCameraPosVector->SetFloatVector(reinterpret_cast<float*>(&cameraPos));
-
+		if (effectCameraPosVector)
+			effectCameraPosVector->SetFloatVector(reinterpret_cast<float*>(&cameraPos));
+	}
 
 	// ----- DRAW -----
 	pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
@@ -217,6 +225,22 @@ void Mesh::CreateSamplerStates(ID3D11Device* pDevice)
 	desc.MaxAnisotropy = 16;
 	m_pAnisotropicSampler = nullptr;
 	pDevice->CreateSamplerState(&desc, &m_pAnisotropicSampler);
+}
+
+std::unique_ptr<Effect> Mesh::CreateEffect(Effect::EffectType effecttype, ID3D11Device* pDevice)
+{
+	switch (effecttype)
+	{
+	case Effect::EffectType::Opaque:
+		return std::make_unique<ShadingEffect>(pDevice);
+		break;
+	case Effect::EffectType::Transparent:
+		return std::make_unique<TransparencyEffect>(pDevice);
+		break;
+	default:
+		return nullptr;
+		break;
+	}
 }
 
 void Mesh::Translate(const Vector3& offset)
