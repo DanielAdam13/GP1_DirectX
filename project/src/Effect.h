@@ -23,6 +23,13 @@ public:
 
 	virtual void SetDiffuseMap(Texture* pDiffuseTexture);
 
+	enum class EffectType
+	{
+		Opaque,
+		Transparent
+	};
+	
+	// ShadingEffect No-op Functions
 	virtual ID3DX11EffectMatrixVariable* GetWorldMatrix() const { return nullptr; };
 	virtual ID3DX11EffectVectorVariable* GetCameraPos() const { return nullptr; };
 
@@ -30,11 +37,10 @@ public:
 	virtual void SetSpecularMap(Texture* pSpecularTexture) {};
 	virtual void SetGlossMap(Texture* pGlossTexture) {};
 
-	enum class EffectType
-	{
-		Opaque,
-		Transparent
-	};
+	// TransparencyEffect No-op Functions
+	virtual void ApplyPipelineStates(ID3D11DeviceContext* pDevContext) {};
+
+	
 
 protected:
 	Effect(ID3D11Device* pDevice, const std::wstring& assetPath);

@@ -38,7 +38,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_Camera.Initialize(45.f, { 0.f, 0.f, -50.f }, 0.1f, 100.f);
 
 
-	m_OpaqueMeshes.reserve(1);
+	m_OpaqueMeshes.reserve(2);
 	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
 		m_pDevice,
 		"resources/vehicle.obj",
@@ -48,21 +48,23 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		"resources/vehicle_specular.png",
 		"resources/vehicle_gloss.png"
 	));
-	/*m_Meshes.emplace_back(std::make_unique<Mesh>(
+	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
 		m_pDevice,
 		std::vector<VertexIn> {
-		{ {-3.f, 3.f, -2.f}, {1,0,0}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0,1,0}, {0.5f, 0.f} },
-			{ {3.f, 3.f, -2.f}, {0,0,1}, {1.f, 0.f} }, { {-3.f, 0.f, -2.f}, {1,0,0}, {0.f, 0.5f} },
-			{ {0.f, 0.f, -2.f}, {0,1,0}, {0.5f, 0.5f} }, { {3.f, 0.f, -2.f}, {0,0,1}, {1.f, 0.5f} },
-			{ {-3.f, -3.f, -2.f}, {1,0,0}, {0.f, 1.f} }, { {0.f, -3.f, -2.f}, {0,1,0}, {0.5f, 1.f} },
-			{ {3.f, -3.f, -2.f}, {0,0,1}, {1.f, 1.f} }
+			{ {-3.f, 3.f, -2.f}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0.5f, 0.f} },
+			{ {3.f, 3.f, -2.f}, {1.f, 0.f} }, { {-3.f, 0.f, -2.f}, {0.f, 0.5f} },
+			{ {0.f, 0.f, -2.f}, {0.5f, 0.5f} }, { {3.f, 0.f, -2.f}, {1.f, 0.5f} },
+			{ {-3.f, -3.f, -2.f}, {0.f, 1.f} }, { {0.f, -3.f, -2.f}, {0.5f, 1.f} },
+			{ {3.f, -3.f, -2.f}, {1.f, 1.f} }
 		},
 
 		std::vector<uint32_t> {3, 0, 4, 0, 1, 4, 4, 1, 5, 1, 2, 5, 6, 3, 7, 3, 4, 7, 7, 4, 8, 4, 5, 8 },
 
 		PrimitiveTopology::TriangleList,
 		"resources/uv_grid_2.png"
-	));*/
+	));
+	m_OpaqueMeshes[1]->Translate({ 0.f, 0.f, 50.f });
+	
 	m_TransparentMeshes.reserve(1);
 	m_TransparentMeshes.emplace_back(std::make_unique<Mesh<TransparencyEffect>>(
 		m_pDevice,
@@ -107,11 +109,11 @@ void Renderer::Update(const Timer* pTimer)
 
 	for (auto& pTrMesh : m_TransparentMeshes)
 	{
-		//pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+		pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
 	for (auto& pOpaqMesh : m_OpaqueMeshes)
 	{
-		//pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+		pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
 	
 

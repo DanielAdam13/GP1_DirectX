@@ -135,10 +135,33 @@ float4 PS(VS_OUTPUT input) : SV_Target
 // -------------------------
 //   Technique
 // -------------------------
+RasterizerState gRasterizerState
+{
+    CullMode = Back; // Backface culling for opaque meshes
+    FrontCounterClockwise = false;
+};
+
+DepthStencilState gDepthStencilState
+{
+    DepthEnable = true;
+    DepthWriteMask = all; // Set to ALL so it WRITES Depth, unlike the transparent shader
+    DepthFunc = less;
+    StencilEnable = false;
+};
+
+BlendState gBlendState
+{
+    BlendEnable[0] = false; // NO Blending
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
 technique11 DefaultTechnique
 {
     pass P0
     {
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
         SetPixelShader(CompileShader(ps_5_0, PS()));

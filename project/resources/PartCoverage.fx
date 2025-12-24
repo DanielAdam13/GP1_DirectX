@@ -54,16 +54,45 @@ VS_OUTPUT VS(VS_INPUT input)
 // Pixel Shader
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(gDiffuseMap.Sample(gSampler, input.UV).rgb, 1.f);
+    return float4(gDiffuseMap.Sample(gSampler, input.UV));
 }
 
 // -------------------------
 //   Technique
 // -------------------------
+RasterizerState gRasterizerState
+{
+    CullMode = None; // Double-sided
+    FrontCounterClockwise = false;
+};
+
+DepthStencilState gDepthStencilState
+{
+    DepthEnable = true;
+    DepthWriteMask = zero;
+    DepthFunc = less;
+    StencilEnable = false;
+};
+
+BlendState gBlendState
+{
+    BlendEnable[0] = true;
+    SrcBlend = src_alpha;
+    DestBlend = inv_src_alpha; // dest_alpha, zero, src_color, dest_color...
+    BlendOp = add; // subtract, min, max, rev_subtract
+    SrcBlendAlpha = zero;
+    DestBlendAlpha = zero;
+    BlendOpAlpha = add;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
 technique11 DefaultTechnique
 {
     pass P0
     {
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS()));

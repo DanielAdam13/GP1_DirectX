@@ -72,6 +72,33 @@ public:
 			m_pSpecularTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, specularTexturePath));
 			m_pGlossTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, glossTexturePath));
 		};
+	Mesh(ID3D11Device* pDevice, const std::vector<VertexIn>& vertices, const std::vector<uint32_t>& indices, PrimitiveTopology _primitive,
+		const std::string& diffuseTexturePath, const std::string& normalTexturePath = "", const std::string& specularTexturePath = "", const std::string& glossTexturePath = "")
+		: m_pEffect{ std::make_unique<EffectType>(pDevice) },
+		m_Vertices{ vertices },
+		m_Indices{ indices },
+		m_CurrentTopology{ _primitive },
+		m_Position{ 0.f, 0.f, 0.f },
+		m_RotY{ 0.f },
+		m_Scale{ 1.f, 1.f, 1.f },
+		m_WorldMatrix{},
+		m_TranslationMatrix{ Matrix::CreateTranslation(m_Position) },
+		m_RotationMatrix{ Matrix::CreateRotationY(m_RotY) },
+		m_ScaleMatrix{ Matrix::CreateScale(m_Scale) },
+		m_pDiffuseTetxure{},
+		m_pNormalTexture{},
+		m_pSpecularTexture{},
+		m_pGlossTexture{}
+	{
+		m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
+		CreateLayouts(pDevice);
+		CreateSamplerStates(pDevice);
+		m_CurrentSampler = m_pPointSampler;
+		m_pDiffuseTetxure = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, diffuseTexturePath));
+		m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));;
+		m_pSpecularTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, specularTexturePath));
+		m_pGlossTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, glossTexturePath));
+	};
 	~Mesh()
 	{
 		SAFE_RELEASE(m_pVertexBuffer);
@@ -92,16 +119,14 @@ public:
 		// Bind Texture's SRV to GPU's resource view
 		m_pEffect->SetDiffuseMap(m_pDiffuseTetxure.get());
 
-		/*if (auto* shading = dynamic_cast<ShadingEffect*>(m_pEffect.get()))
-		{
-			shading->SetNormalMap(m_pNormalTexture.get());
-			shading->SetSpecularMap(m_pSpecularTexture.get());
-			shading->SetGlossMap(m_pGlossTexture.get());
-		}*/
+		if (m_pNormalTexture)
+			m_pEffect->SetNormalMap(m_pNormalTexture.get());
+		
+		if (m_pSpecularTexture)
+			m_pEffect->SetSpecularMap(m_pSpecularTexture.get());
 
-		m_pEffect->SetNormalMap(m_pNormalTexture.get());
-		m_pEffect->SetSpecularMap(m_pSpecularTexture.get());
-		m_pEffect->SetGlossMap(m_pGlossTexture.get());
+		if (m_pGlossTexture)
+			m_pEffect->SetGlossMap(m_pGlossTexture.get());
 
 		// Set Primitive Topology
 		if (m_CurrentTopology == PrimitiveTopology::TriangleList)
@@ -146,6 +171,8 @@ public:
 
 		// ----- Bind Variables AFTER Technique pass ------
 		pDeviceContext->PSSetSamplers(0, 1, &m_CurrentSampler);
+
+		//m_pEffect->ApplyPipelineStates(pDeviceContext);
 
 		const auto effectWorldMatrix{ m_pEffect->GetWorldMatrix() };
 		const auto effectCameraPosVector{ m_pEffect->GetCameraPos() };
