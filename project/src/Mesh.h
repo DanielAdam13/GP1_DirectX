@@ -40,6 +40,10 @@ template <typename EffectType>
 class Mesh final
 {
 public:
+	static_assert(
+		std::is_base_of_v<Effect, EffectType>,
+		"Mesh<EffectType>: EffectType must derive from Effect");
+
 	Mesh(ID3D11Device* pDevice, const std::string& mainBodyMeshOBJ, PrimitiveTopology _primitive,
 		const std::string& diffuseTexturePath, const std::string& normalTexturePath = "", const std::string& specularTexturePath = "", const std::string& glossTexturePath = "")
 		: m_pEffect{ std::make_unique<EffectType>(pDevice) },
@@ -58,7 +62,7 @@ public:
 		m_pSpecularTexture{},
 		m_pGlossTexture{}
 		{
-			Utils::ParseOBJ("resources/vehicle.obj", m_Vertices, m_Indices);
+			Utils::ParseOBJ(mainBodyMeshOBJ, m_Vertices, m_Indices);
 			m_WorldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
 			CreateLayouts(pDevice);
 			CreateSamplerStates(pDevice);

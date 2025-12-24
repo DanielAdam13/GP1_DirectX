@@ -42,9 +42,11 @@ namespace dae
 
 		Camera m_Camera{};
 		std::vector<std::unique_ptr<Mesh<ShadingEffect>>> m_OpaqueMeshes{};
+		std::vector<std::unique_ptr<Mesh<TransparencyEffect>>> m_TransparentMeshes{};
 		SamplerType m_CurrentSamplerType;
 
 		std::unique_ptr<ShadingEffect> m_pOpaqueEffect;
+		std::unique_ptr<TransparencyEffect> m_pTransparencyEffect;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();

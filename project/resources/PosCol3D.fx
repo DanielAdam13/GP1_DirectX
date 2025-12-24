@@ -92,7 +92,7 @@ float3 GetPhongColor(in VS_OUTPUT input, float3 N, float3 lightVector)
     const float3 sampledSpecular = gSpecularMap.Sample(gSampler, input.UV).rgb;
     const float sampledGloss = gGlossinessMap.Sample(gSampler, input.UV).r;
     
-    const float shininess = 100.f;
+    const float shininess = 200.f;
     const float phongExponent = sampledGloss * shininess;
     
     const float3 viewDirection = normalize(gCameraPos - input.WorldPos.xyz);

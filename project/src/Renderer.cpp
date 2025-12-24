@@ -39,6 +39,15 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 
 	m_OpaqueMeshes.reserve(1);
+	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
+		m_pDevice,
+		"resources/vehicle.obj",
+		PrimitiveTopology::TriangleList,
+		"resources/vehicle_diffuse.png",
+		"resources/vehicle_normal.png",
+		"resources/vehicle_specular.png",
+		"resources/vehicle_gloss.png"
+	));
 	/*m_Meshes.emplace_back(std::make_unique<Mesh>(
 		m_pDevice,
 		std::vector<VertexIn> {
@@ -54,16 +63,12 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		PrimitiveTopology::TriangleList,
 		"resources/uv_grid_2.png"
 	));*/
-
-	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
+	m_TransparentMeshes.reserve(1);
+	m_TransparentMeshes.emplace_back(std::make_unique<Mesh<TransparencyEffect>>(
 		m_pDevice,
-		"resources/vehicle.obj",
+		"resources/fireFX.obj",
 		PrimitiveTopology::TriangleList,
-		"resources/vehicle_diffuse.png",
-		"resources/vehicle_normal.png",
-		"resources/vehicle_specular.png",
-		"resources/vehicle_gloss.png"
-	));
+		"resources/fireFX_diffuse.png"));
 }
 
 Renderer::~Renderer()
@@ -100,10 +105,15 @@ void Renderer::Update(const Timer* pTimer)
 {
 	ProcessInput();
 
-	for (auto& pMesh : m_OpaqueMeshes)
+	for (auto& pTrMesh : m_TransparentMeshes)
 	{
-		//pMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+		//pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
+	for (auto& pOpaqMesh : m_OpaqueMeshes)
+	{
+		//pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+	}
+	
 
 	// Clear Views at the start of each Frame
 	constexpr float color[4] = { 0.3f, 0.f, 0.3f, 1.f };
@@ -115,8 +125,14 @@ void Renderer::Update(const Timer* pTimer)
 	m_Camera.Update(pTimer, aspectRatio);
 	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
 
-	// Render Frame
-	// ...
+	// ----------- Render Frame -------------
+
+	// Draw Transparent Meshes first
+	for (auto& pTrMesh : m_TransparentMeshes)
+	{
+		pTrMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
+	}
+	// Draw Opaque Meshes after
 	for (auto& pMesh : m_OpaqueMeshes)
 	{
 		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
