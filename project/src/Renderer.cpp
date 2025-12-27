@@ -35,7 +35,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::cout << "DirectX initialization failed!\n";
 	}
 
-	m_Camera.Initialize(45.f, { 0.f, 0.f, -50.f }, 0.1f, 100.f);
+	m_Camera.Initialize(45.f, { 0.f, 0.f, 0.f }, 0.1f, 100.f);
 
 
 	m_OpaqueMeshes.reserve(2);
@@ -48,7 +48,8 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		"resources/vehicle_specular.png",
 		"resources/vehicle_gloss.png"
 	));
-	m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
+	m_OpaqueMeshes[0]->Translate({ 0.f, 0.f, 50.f });
+	/*m_OpaqueMeshes.emplace_back(std::make_unique<Mesh<ShadingEffect>>(
 		m_pDevice,
 		std::vector<VertexIn> {
 			{ {-3.f, 3.f, -2.f}, {0.f, 0.f} }, { {0.f, 3.f, -2.f}, {0.5f, 0.f} },
@@ -63,7 +64,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		PrimitiveTopology::TriangleList,
 		"resources/uv_grid_2.png"
 	));
-	m_OpaqueMeshes[1]->Translate({ 0.f, 0.f, 50.f });
+	m_OpaqueMeshes[1]->Translate({ 0.f, 0.f, 50.f });*/
 	
 	m_TransparentMeshes.reserve(1);
 	m_TransparentMeshes.emplace_back(std::make_unique<Mesh<TransparencyEffect>>(
@@ -71,6 +72,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		"resources/fireFX.obj",
 		PrimitiveTopology::TriangleList,
 		"resources/fireFX_diffuse.png"));
+	m_TransparentMeshes[0]->Translate({ 0.f, 0.f, 50.f });
 }
 
 Renderer::~Renderer()
@@ -107,38 +109,38 @@ void Renderer::Update(const Timer* pTimer)
 {
 	ProcessInput();
 
-	for (auto& pTrMesh : m_TransparentMeshes)
-	{
-		pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
-	}
 	for (auto& pOpaqMesh : m_OpaqueMeshes)
 	{
-		pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+		//pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
 	}
-	
+	for (auto& pTrMesh : m_TransparentMeshes)
+	{
+		//pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+	}
 
 	// Clear Views at the start of each Frame
 	constexpr float color[4] = { 0.3f, 0.f, 0.3f, 1.f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
-
+	
 	const float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 
 	m_Camera.Update(pTimer, aspectRatio);
 	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
 
 	// ----------- Render Frame -------------
-
-	// Draw Transparent Meshes first
-	for (auto& pTrMesh : m_TransparentMeshes)
-	{
-		pTrMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
-	}
-	// Draw Opaque Meshes after
+	
+	// Draw Opaque Meshes first
 	for (auto& pMesh : m_OpaqueMeshes)
 	{
 		pMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
 	}
+	// Draw Transparent Meshes AFTER
+	for (auto& pTrMesh : m_TransparentMeshes)
+	{
+		pTrMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
+	}
+	
 
 
 	// Present BackBuffer (SWAP)

@@ -68,7 +68,7 @@ public:
 			CreateSamplerStates(pDevice);
 			m_CurrentSampler = m_pPointSampler;
 			m_pDiffuseTetxure = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, diffuseTexturePath));
-			m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));;
+			m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));
 			m_pSpecularTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, specularTexturePath));
 			m_pGlossTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, glossTexturePath));
 		};
@@ -95,7 +95,7 @@ public:
 		CreateSamplerStates(pDevice);
 		m_CurrentSampler = m_pPointSampler;
 		m_pDiffuseTetxure = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, diffuseTexturePath));
-		m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));;
+		m_pNormalTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, normalTexturePath));
 		m_pSpecularTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, specularTexturePath));
 		m_pGlossTexture = std::unique_ptr<Texture>(Texture::LoadFromFile(pDevice, glossTexturePath));
 	};
