@@ -62,5 +62,8 @@ namespace dae
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
 		void ProcessInput();
+
+		// CONDITIONS
+		bool m_RotationFrozen;
 	};
 }

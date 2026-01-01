@@ -18,7 +18,8 @@ using namespace dae;
 
 Renderer::Renderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow),
-	m_CurrentSamplerType{ SamplerType::Point }
+	m_CurrentSamplerType{ SamplerType::Point },
+	m_RotationFrozen{ false }
 {
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
@@ -109,18 +110,23 @@ void Renderer::Update(const Timer* pTimer)
 {
 	ProcessInput();
 
-	for (auto& pOpaqMesh : m_OpaqueMeshes)
+	if (!m_RotationFrozen)
 	{
-		//pOpaqMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
-	}
-	for (auto& pTrMesh : m_TransparentMeshes)
-	{
-		//pTrMesh->RotateY(PI_DIV_4 / 2 * pTimer->GetElapsed());
+		const float rotationSpeed{ PI_DIV_4 * pTimer->GetElapsed() };
+		for (auto& pOpaqMesh : m_OpaqueMeshes)
+		{
+			pOpaqMesh->RotateY(rotationSpeed);
+		}
+
+		for (auto& pTrMesh : m_TransparentMeshes)
+		{
+			pTrMesh->RotateY(rotationSpeed);
+		}
 	}
 
 	// Clear Views at the start of each Frame
-	constexpr float color[4] = { 0.3f, 0.f, 0.3f, 1.f };
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
+	constexpr float hardwareColor[4] = { 0.39f, 0.59f, 0.93f, 1.f };
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, hardwareColor);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 	
 	const float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
@@ -128,8 +134,7 @@ void Renderer::Update(const Timer* pTimer)
 	m_Camera.Update(pTimer, aspectRatio);
 	Matrix viewProjMatrix{ m_Camera.viewMatrix * m_Camera.projectionMatrix };
 
-	// ----------- Render Frame -------------
-	
+	// ----------- Render Frame -------------	
 	// Draw Opaque Meshes first
 	for (auto& pMesh : m_OpaqueMeshes)
 	{
@@ -140,8 +145,6 @@ void Renderer::Update(const Timer* pTimer)
 	{
 		pTrMesh->Render(m_pDeviceContext, viewProjMatrix, m_CurrentSamplerType, m_Camera.origin);
 	}
-	
-
 
 	// Present BackBuffer (SWAP)
 	m_pSwapChain->Present(0, 0);
@@ -283,14 +286,26 @@ void dae::Renderer::ProcessInput()
 {
 	const uint8_t* pKeyboardState{ SDL_GetKeyboardState(nullptr) };
 
+	// ROTATION
 	static bool wasF2Pressed{ false };
 	bool isF2Pressed = pKeyboardState[SDL_SCANCODE_F2];
 
 	if (wasF2Pressed && !isF2Pressed)
 	{
+		m_RotationFrozen = !m_RotationFrozen;
+	}
+
+	wasF2Pressed = isF2Pressed;
+
+	// Sampler State
+	static bool wasF4Pressed{ false };
+	bool isF4Pressed = pKeyboardState[SDL_SCANCODE_F4];
+
+	if (wasF4Pressed && !isF4Pressed)
+	{
 		m_CurrentSamplerType = static_cast<SamplerType>((static_cast<int>(m_CurrentSamplerType) + 1) % 3);
 		std::wcout << "Sampler State: " << std::to_wstring(static_cast<int>(m_CurrentSamplerType)) << "\n";
 	}
 
-	wasF2Pressed = isF2Pressed;
+	wasF4Pressed = isF4Pressed;
 }
