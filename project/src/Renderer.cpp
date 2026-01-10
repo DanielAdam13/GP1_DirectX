@@ -181,7 +181,7 @@ HRESULT Renderer::InitializeDirectX()
 		adapter->GetDesc(&desc);
 		std::wcout << L"Adapter: " << i << L": " << desc.Description << L"\n";
 
-		if (desc.VendorId != 0x8086) // NVIDIA vendor ID
+		if (desc.VendorId == 0x10DE) // NVIDIA vendor ID
 		{
 			selectedAdapter = adapter;
 			break;
